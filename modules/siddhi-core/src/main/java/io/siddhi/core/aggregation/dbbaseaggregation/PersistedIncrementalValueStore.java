@@ -1,33 +1,16 @@
-/*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+package io.siddhi.core.aggregation.dbbaseaggregation;
 
-package io.siddhi.core.aggregation;
-
+import io.siddhi.core.aggregation.IncrementalValueStore;
 import io.siddhi.core.config.SiddhiAppContext;
 import io.siddhi.core.config.SiddhiQueryContext;
 import io.siddhi.core.event.stream.StreamEvent;
 import io.siddhi.core.event.stream.StreamEventFactory;
 import io.siddhi.core.executor.ExpressionExecutor;
 import io.siddhi.core.executor.VariableExpressionExecutor;
-import io.siddhi.core.util.snapshot.state.PartitionSyncStateHolder;
-import io.siddhi.core.util.snapshot.state.SingleSyncStateHolder;
+import io.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
 import io.siddhi.core.util.snapshot.state.State;
 import io.siddhi.core.util.snapshot.state.StateHolder;
+import io.siddhi.query.api.aggregation.TimePeriod;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -35,39 +18,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Store for maintaining the base values related to incremental aggregation. (e.g. for average,
- * the base incremental values would be sum and count. The timestamp too is stored here.
- */
-public class BaseIncrementalValueStore implements IncrementalValueStore {
-    private static final Logger log = Logger.getLogger(BaseIncrementalValueStore.class);
+ * IncrementalValueStore implementation for the persisted aggregation
+ **/
+public class PersistedIncrementalValueStore implements IncrementalValueStore {
+    private static final Logger log = Logger.getLogger(PersistedIncrementalValueStore.class);
+    List<IncrementalAttributeAggregator> incrementalAttributeAggregators;
     private StateHolder<ValueState> valueStateHolder;
     private StateHolder<StoreState> storeStateHolder;
-
     private long initialTimestamp;
     private List<ExpressionExecutor> expressionExecutors;
     private ExpressionExecutor shouldUpdateTimestamp;
-
     private StreamEventFactory streamEventFactory;
+    private TimePeriod.Duration duration;
 
-    public BaseIncrementalValueStore(String aggregatorName, long initialTimestamp,
-                                     List<ExpressionExecutor> expressionExecutors,
-                                     ExpressionExecutor shouldUpdateTimestamp, StreamEventFactory streamEventFactory,
-                                     SiddhiQueryContext siddhiQueryContext, boolean groupBy, boolean local) {
+    public PersistedIncrementalValueStore(String aggregatorName, long initialTimestamp,
+                                          List<ExpressionExecutor> expressionExecutors,
+                                          List<IncrementalAttributeAggregator> incrementalAttributeAggregators,
+                                          ExpressionExecutor shouldUpdateTimestamp,
+                                          StreamEventFactory streamEventFactory, SiddhiQueryContext siddhiQueryContext,
+                                          boolean groupBy, boolean local, TimePeriod.Duration duration) {
+
 
         this.initialTimestamp = initialTimestamp;
         this.expressionExecutors = expressionExecutors;
         this.shouldUpdateTimestamp = shouldUpdateTimestamp;
         this.streamEventFactory = streamEventFactory;
-
-        if (!local) {
-            this.valueStateHolder = siddhiQueryContext.generateStateHolder(aggregatorName + "-" +
-                    this.getClass().getName() + "-value", groupBy, () -> new ValueState());
-            this.storeStateHolder = siddhiQueryContext.generateStateHolder(aggregatorName + "-" +
-                    this.getClass().getName(), false, () -> new StoreState());
-        } else {
-            this.valueStateHolder = new PartitionSyncStateHolder(() -> new ValueState());
-            this.storeStateHolder = new SingleSyncStateHolder(() -> new StoreState());
-        }
+        this.duration = duration;
+        this.incrementalAttributeAggregators = incrementalAttributeAggregators;
     }
 
     public synchronized void clearValues(long startTimeOfNewAggregates, StreamEvent resetEvent) {

@@ -69,7 +69,7 @@ public class IncrementalExecutor implements Executor {
     public IncrementalExecutor(String aggregatorName, TimePeriod.Duration duration,
                                List<ExpressionExecutor> processExpressionExecutors,
                                ExpressionExecutor shouldUpdateTimestamp, GroupByKeyGenerator groupByKeyGenerator,
-                               boolean isRoot, Table table, IncrementalExecutor child,
+                               boolean isRoot, Table table, Executor child,
                                SiddhiQueryContext siddhiQueryContext, MetaStreamEvent metaStreamEvent,
                                String timeZone) {
         this.timeZone = timeZone;
@@ -194,6 +194,7 @@ public class IncrementalExecutor implements Executor {
 
     private void dispatchEvent(long startTimeOfNewAggregates, BaseIncrementalValueStore aBaseIncrementalValueStore) {
         if (aBaseIncrementalValueStore.isProcessed()) {
+            LOG.info("Inside dispatch for duration " + duration + " isProcessingExecutor " + isProcessingExecutor);
             Map<String, StreamEvent> streamEventMap = aBaseIncrementalValueStore.getGroupedByEvents();
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>();
             for (StreamEvent event : streamEventMap.values()) {

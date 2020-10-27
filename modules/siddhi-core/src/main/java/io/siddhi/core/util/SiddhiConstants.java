@@ -148,4 +148,19 @@ public final class SiddhiConstants {
 
     public static final String ENABLE_EVENT_COUNT_LOGGER = "enableLoggingEventCount";
     public static final String LOGGING_DURATION = "loggingDuration";
+
+    public static final String DB_AGGREGATION_CONFIG_FILE = "db-aggregation-config.xml";
+    public static final String PLACEHOLDER_TABLE_NAME = "{{TABLE_NAME}}";
+    public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS}}";
+    public static final String PLACEHOLDER_COLUMN = "{{COLUMN}}";
+    public static final String PLACEHOLDER_QUERY = "{{QUERY}}";
+    public static final String PLACEHOLDER_SELECTORS = "{{SELECTORS}}";
+    public static final String PLACEHOLDER_CONDITION = "{{CONDITION}}";
+
+    public static final String INSERT_TO_TABLE_NAME = "TO_TABLE_NAME";
+    public static final String FROM_TABLE_NAME = "FROM_TABLE_NAME";
+    public static final String UPDATED_TIMESTAMP = "UPDATED_TIMESTAMP";
+    public static final String FROM_TIMESTAMP = "FROM_TIMESTAMP";
+    public static final String TO_TIMESTAMP = "TO_TIMESTAMP";
+
 }

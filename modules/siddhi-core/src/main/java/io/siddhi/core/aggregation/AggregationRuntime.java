@@ -85,7 +85,7 @@ public class AggregationRuntime implements MemoryCalculable {
     private boolean isProcessingOnExternalTime;
     private boolean isDistributed;
     private List<TimePeriod.Duration> incrementalDurations;
-    private Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap;
+    private Map<TimePeriod.Duration, Executor> incrementalExecutorMap;
     private Map<TimePeriod.Duration, Table> aggregationTables;
     private List<String> tableAttributesNameList;
     private MetaStreamEvent aggregateMetaSteamEvent;
@@ -113,7 +113,7 @@ public class AggregationRuntime implements MemoryCalculable {
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition, boolean isProcessingOnExternalTime,
                               boolean isDistributed, List<TimePeriod.Duration> incrementalDurations,
-                              Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
+                              Map<TimePeriod.Duration, Executor> incrementalExecutorMap,
                               Map<TimePeriod.Duration, Table> aggregationTables,
                               List<ExpressionExecutor> outputExpressionExecutors,
                               Map<TimePeriod.Duration, List<ExpressionExecutor>> aggregateProcessingExecutorsMap,
@@ -532,8 +532,8 @@ public class AggregationRuntime implements MemoryCalculable {
 
         boolean isQueryGroupBySameAsAggGroupBy =
                 queryGroupByListCopy.isEmpty() ||
-                    (queryGroupByListCopy.contains(timestampVariable) &&
-                            queryGroupByNamesList.equals(groupByVariablesList));
+                        (queryGroupByListCopy.contains(timestampVariable) &&
+                                queryGroupByNamesList.equals(groupByVariablesList));
 
         List<VariableExpressionExecutor> variableExpExecutorsForTableLookups = new ArrayList<>();
 
@@ -695,9 +695,11 @@ public class AggregationRuntime implements MemoryCalculable {
         // State only updated when first event arrives to IncrementalAggregationProcessor
         if (isFirstEventArrived) {
             this.isFirstEventArrived = true;
-            for (Map.Entry<TimePeriod.Duration, IncrementalExecutor> durationIncrementalExecutorEntry :
+            for (Map.Entry<TimePeriod.Duration, Executor> durationIncrementalExecutorEntry :
                     this.incrementalExecutorMap.entrySet()) {
-                durationIncrementalExecutorEntry.getValue().setProcessingExecutor(true);
+                if(durationIncrementalExecutorEntry.getKey().equals(TimePeriod.Duration.SECONDS)) {
+                    ((IncrementalExecutor) durationIncrementalExecutorEntry.getValue()).setProcessingExecutor(true);
+                }
             }
         }
         this.incrementalExecutorsInitialiser.initialiseExecutors();
