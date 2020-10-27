@@ -105,6 +105,8 @@ public class PersistedIncrementalExecutor implements Executor {
             ExecutorState executorState = stateHolder.getState();
             try {
                 long timestamp = getTimestamp(streamEvent);
+                LOG.info("Inside execute duration " + duration + "currentTime" + timestamp + "next emit time"
+                        + executorState.nextEmitTime);
                 if (timestamp >= executorState.nextEmitTime) {
                     long emittedTime = executorState.nextEmitTime;
                     long startedTime = executorState.startTimeOfAggregates;
@@ -129,7 +131,8 @@ public class PersistedIncrementalExecutor implements Executor {
 
     private void dispatchEvent(long startTimeOfNewAggregates, long emittedTime,
                                IncrementalValueStore aBaseIncrementalValueStore) {
-        LOG.info("Aggragation startTime " + startTimeOfNewAggregates + " EmittedTime " + emittedTime);
+        LOG.info("Aggragation startTime " + startTimeOfNewAggregates + " EmittedTime " + emittedTime +
+                " ---------------- duration " + duration);
         ComplexEventChunk complexEventChunk = new ComplexEventChunk();
         StreamEvent streamEvent = streamEventFactory.newInstance();
         streamEvent.setType(ComplexEvent.Type.CURRENT);
@@ -201,12 +204,12 @@ public class PersistedIncrementalExecutor implements Executor {
 
     @Override
     public Executor getNextExecutor() {
-        return null;
+        return next;
     }
 
     @Override
     public void setNextExecutor(Executor executor) {
-
+        next = executor;
     }
 
     private void processAggregates(StreamEvent streamEvent, ExecutorState executorState) {
