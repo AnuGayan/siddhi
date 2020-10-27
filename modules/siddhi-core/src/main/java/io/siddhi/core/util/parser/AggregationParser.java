@@ -531,15 +531,29 @@ public class AggregationParser {
                 Executor incrementalExecutor;
                 if (duration == TimePeriod.Duration.SECONDS || duration == TimePeriod.Duration.MINUTES ||
                         duration == TimePeriod.Duration.HOURS) {
-                    incrementalExecutor = new IncrementalExecutor(aggregatorName, duration,
-                            processExpressionExecutorsMap.get(duration), shouldUpdateTimestamp,
-                            groupByKeyGeneratorList.get(duration), isRoot, aggregationTables.get(duration),
-                            child, siddhiQueryContext, processedMetaStreamEvent, timeZone);
+                    if (incrementalDurations.contains(duration)) {
+                        incrementalExecutor = new IncrementalExecutor(aggregatorName, duration,
+                                processExpressionExecutorsMap.get(duration), shouldUpdateTimestamp,
+                                groupByKeyGeneratorList.get(duration), isRoot, aggregationTables.get(duration),
+                                child, siddhiQueryContext, processedMetaStreamEvent, timeZone);
+                    } else {
+                        incrementalExecutor = new IncrementalExecutor(aggregatorName, duration,
+                                processExpressionExecutorsMap.get(incrementalDurations.get(0)), shouldUpdateTimestamp,
+                                groupByKeyGeneratorList.get(incrementalDurations.get(0)), isRoot, null,
+                                child, siddhiQueryContext, processedMetaStreamEvent, timeZone);
+                    }
                 } else {
-                    incrementalExecutor = new PersistedIncrementalExecutor(aggregatorName, duration,
-                            processExpressionExecutorsMap.get(duration),
-                            child, siddhiQueryContext, generateCUDMetaStreamEvent(), timeZone,
-                            cudProcessors.get(duration));
+                    if (incrementalDurations.contains(duration)) {
+                        incrementalExecutor = new PersistedIncrementalExecutor(aggregatorName, duration,
+                                processExpressionExecutorsMap.get(duration),
+                                child, siddhiQueryContext, generateCUDMetaStreamEvent(), timeZone,
+                                cudProcessors.get(duration));
+                    } else {
+                        incrementalExecutor = new PersistedIncrementalExecutor(aggregatorName, duration,
+                                processExpressionExecutorsMap.get(incrementalDurations.get(0)),
+                                child, siddhiQueryContext, generateCUDMetaStreamEvent(), timeZone,
+                                null);
+                    }
                 }
                 incrementalExecutorMap.put(duration, incrementalExecutor);
                 root = incrementalExecutor;
