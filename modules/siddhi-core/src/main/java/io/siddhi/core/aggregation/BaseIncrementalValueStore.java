@@ -38,7 +38,7 @@ import java.util.Map;
  * Store for maintaining the base values related to incremental aggregation. (e.g. for average,
  * the base incremental values would be sum and count. The timestamp too is stored here.
  */
-public class BaseIncrementalValueStore implements IncrementalValueStore {
+public class BaseIncrementalValueStore {
     private static final Logger log = Logger.getLogger(BaseIncrementalValueStore.class);
     private StateHolder<ValueState> valueStateHolder;
     private StateHolder<StoreState> storeStateHolder;

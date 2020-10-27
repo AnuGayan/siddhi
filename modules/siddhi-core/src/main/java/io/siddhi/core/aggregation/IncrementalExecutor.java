@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.siddhi.core.aggregation;
 
 import io.siddhi.core.config.SiddhiAppContext;
@@ -194,7 +193,6 @@ public class IncrementalExecutor implements Executor {
 
     private void dispatchEvent(long startTimeOfNewAggregates, BaseIncrementalValueStore aBaseIncrementalValueStore) {
         if (aBaseIncrementalValueStore.isProcessed()) {
-            LOG.info("Inside dispatch for duration " + duration + " isProcessingExecutor " + isProcessingExecutor);
             Map<String, StreamEvent> streamEventMap = aBaseIncrementalValueStore.getGroupedByEvents();
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>();
             for (StreamEvent event : streamEventMap.values()) {

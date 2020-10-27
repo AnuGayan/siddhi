@@ -18,6 +18,7 @@
 
 package io.siddhi.core.aggregation;
 
+import io.siddhi.core.aggregation.dbbaseaggregation.PersistedIncrementalExecutor;
 import io.siddhi.core.config.SiddhiQueryContext;
 import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.state.MetaStateEvent;
@@ -697,8 +698,11 @@ public class AggregationRuntime implements MemoryCalculable {
             this.isFirstEventArrived = true;
             for (Map.Entry<TimePeriod.Duration, Executor> durationIncrementalExecutorEntry :
                     this.incrementalExecutorMap.entrySet()) {
-                if(durationIncrementalExecutorEntry.getKey().equals(TimePeriod.Duration.SECONDS)) {
+                if (durationIncrementalExecutorEntry.getValue() instanceof IncrementalExecutor) {
                     ((IncrementalExecutor) durationIncrementalExecutorEntry.getValue()).setProcessingExecutor(true);
+                } else {
+                    ((PersistedIncrementalExecutor) durationIncrementalExecutorEntry.getValue())
+                            .setProcessingExecutor(true);
                 }
             }
         }

@@ -126,7 +126,6 @@ public abstract class AbstractStreamProcessor<S extends State> implements Proces
     public abstract List<Attribute> getReturnAttributes();
 
     public void process(ComplexEventChunk streamEventChunk) {
-        log.info("Inside Abstract Stream processor");
         streamEventChunk.reset();
         S state = stateHolder.getState();
         try {

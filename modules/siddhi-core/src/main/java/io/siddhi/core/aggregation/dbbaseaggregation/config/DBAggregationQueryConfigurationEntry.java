@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.siddhi.core.aggregation.dbbaseaggregation.config;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,8 +35,8 @@ public class DBAggregationQueryConfigurationEntry {
     private String stringSize;
     private int fieldSizeLimit;
     private RDBMSTypeMapping rdbmsTypeMapping;
-    private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
-    private RDBMSSelectFunctionTemplate rdbmsSelectFunctionTemplate;
+    private DBAggregationSelectQueryTemplate dbAggregationSelectQueryTemplate;
+    private DBAggregationSelectFunctionTemplate dbAggregationSelectFunctionTemplate;
     private int batchSize;
     private boolean batchEnable = false;
     private String collation;
@@ -104,12 +122,12 @@ public class DBAggregationQueryConfigurationEntry {
     }
 
     @XmlElement(name = "selectQueryTemplate")
-    public RDBMSSelectQueryTemplate getRdbmsSelectQueryTemplate() {
-        return rdbmsSelectQueryTemplate;
+    public DBAggregationSelectQueryTemplate getRdbmsSelectQueryTemplate() {
+        return dbAggregationSelectQueryTemplate;
     }
 
-    public void setRdbmsSelectQueryTemplate(RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate) {
-        this.rdbmsSelectQueryTemplate = rdbmsSelectQueryTemplate;
+    public void setRdbmsSelectQueryTemplate(DBAggregationSelectQueryTemplate dbAggregationSelectQueryTemplate) {
+        this.dbAggregationSelectQueryTemplate = dbAggregationSelectQueryTemplate;
     }
 
     @XmlElement(name = "batchSize", required = true)
@@ -131,12 +149,12 @@ public class DBAggregationQueryConfigurationEntry {
     }
 
     @XmlElement(name = "selectQueryFunctions")
-    public RDBMSSelectFunctionTemplate getRdbmsSelectFunctionTemplate() {
-        return rdbmsSelectFunctionTemplate;
+    public DBAggregationSelectFunctionTemplate getRdbmsSelectFunctionTemplate() {
+        return dbAggregationSelectFunctionTemplate;
     }
 
-    public void setRdbmsSelectFunctionTemplate(RDBMSSelectFunctionTemplate rdbmsSelectFunctionTemplate) {
-        this.rdbmsSelectFunctionTemplate = rdbmsSelectFunctionTemplate;
+    public void setRdbmsSelectFunctionTemplate(DBAggregationSelectFunctionTemplate dbAggregationSelectFunctionTemplate) {
+        this.dbAggregationSelectFunctionTemplate = dbAggregationSelectFunctionTemplate;
     }
 }
 
