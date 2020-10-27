@@ -527,7 +527,7 @@ public class AggregationParser {
                     isRoot = true;
                 }
                 child = root;
-                TimePeriod.Duration duration = incrementalDurations.get(i);
+                TimePeriod.Duration duration = allIncrementalDurations.get(i);
                 Executor incrementalExecutor;
                 if (duration == TimePeriod.Duration.SECONDS || duration == TimePeriod.Duration.MINUTES ||
                         duration == TimePeriod.Duration.HOURS) {
