@@ -33,6 +33,7 @@ import io.siddhi.core.util.snapshot.state.StateHolder;
 import io.siddhi.query.api.aggregation.TimePeriod;
 import org.apache.log4j.Logger;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -122,16 +123,33 @@ public class PersistedIncrementalExecutor implements Executor {
         outputDataList.add(startTimeOfNewAggregates);
         outputDataList.add(startTimeOfNewAggregates);
         outputDataList.add(emittedTime);
-        outputDataList.add(null);
         streamEvent.setOutputData(outputDataList.toArray());
-        streamEvent.setBeforeWindowData(null);
+
         if (isProcessingExecutor) {
             complexEventChunk.add(streamEvent);
-            try {
-                cudStreamProcessor.process(complexEventChunk);
-            } catch (Exception e) {
-                log.error("Error occurred while executing the aggregation for data between " + startTime.toString() + " - "
-                        + endTime + " for duration" + duration);
+            int i = 0;
+            while (true) {
+                i++;
+                try {
+                    cudStreamProcessor.process(complexEventChunk);
+                    return;
+                } catch (Exception e) {
+                    if (e.getCause() instanceof SQLException) {
+                        if (((SQLException) e.getCause()).getSQLState().startsWith("08") && i < 3) {
+                            log.error("Error occurred while executing the aggregation for data between " +
+                                    startTime.toString() + " - " + endTime + " for duration " + duration +
+                                    " Retrying the transaction attempt " + (i - 1), e);
+                            continue;
+                        }
+                        log.error("Error occurred while executing the aggregation for data between " + startTime.toString() +
+                                " - " + endTime + " for duration" + duration + " Retry attempts  " + (i - 1) + " The " +
+                                "Should be investigated since this will lead to a data mismatch");
+                        return;
+                    }
+                    if (e.getCause().getMessage().contains("Constrain violation"))
+                        log.error("Error occurred while executing the aggregation for data between " + startTime.toString() +
+                                " - " + endTime + " for duration" + duration);
+                }
             }
         }
         if (getNextExecutor() != null) {

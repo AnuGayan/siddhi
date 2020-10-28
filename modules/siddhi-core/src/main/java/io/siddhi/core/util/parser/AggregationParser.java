@@ -214,9 +214,11 @@ public class AggregationParser {
             // finalListOfIncrementalAttributes
             incomingMetaStreamEvent.initializeOnAfterWindowData(); // To enter data as onAfterWindowData
             //List of all aggregationDurations
-            List<TimePeriod.Duration> allIncrementalDurations = Arrays.asList(TimePeriod.Duration.values().clone());
+            List<TimePeriod.Duration> activeIncrementalDurations = getSortedPeriods(aggregationDefinition.getTimePeriod());
             //get aggegation durations
-            List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(aggregationDefinition.getTimePeriod());
+//            List<TimePeriod.Duration> incrementalDurations = ;
+            List<TimePeriod.Duration> incrementalDurations = Arrays.asList(TimePeriod.Duration.values().clone());
+
 
             //Incoming executors will be executors for timestamp, externalTimestamp(if used),
             List<ExpressionExecutor> incomingExpressionExecutors = new ArrayList<>();
@@ -414,7 +416,7 @@ public class AggregationParser {
 
             Map<TimePeriod.Duration, Executor> incrementalExecutorMap = buildIncrementalExecutors(
                     processedMetaStreamEvent, processExpressionExecutorsMap, groupByKeyGeneratorMap,
-                    incrementalDurations, allIncrementalDurations, aggregationTables, siddhiQueryContext,
+                    incrementalDurations, aggregationTables, siddhiQueryContext,
                     aggregatorName, shouldUpdateTimestamp, timeZone, isPersistedAggregation, cudProcessors);
 
             isOptimisedLookup = isOptimisedLookup &&
@@ -468,7 +470,7 @@ public class AggregationParser {
             }
 
             AggregationRuntime aggregationRuntime = new AggregationRuntime(aggregationDefinition,
-                    isProcessingOnExternalTime, isDistributed, incrementalDurations, incrementalExecutorMap,
+                    isProcessingOnExternalTime, isDistributed, activeIncrementalDurations, incrementalExecutorMap,
                     aggregationTables, outputExpressionExecutors, processExpressionExecutorsMapForFind,
                     shouldUpdateTimestamp, groupByKeyGeneratorMapForReading, isOptimisedLookup, defaultSelectorList,
                     groupByVariablesList, isLatestEventColAdded, baseAggregatorBeginIndex,
@@ -507,7 +509,6 @@ public class AggregationParser {
             Map<TimePeriod.Duration, List<ExpressionExecutor>> processExpressionExecutorsMap,
             Map<TimePeriod.Duration, GroupByKeyGenerator> groupByKeyGeneratorList,
             List<TimePeriod.Duration> incrementalDurations,
-            List<TimePeriod.Duration> allIncrementalDurations,
             Map<TimePeriod.Duration, Table> aggregationTables,
             SiddhiQueryContext siddhiQueryContext,
             String aggregatorName, ExpressionExecutor shouldUpdateTimestamp, String timeZone,
@@ -520,40 +521,26 @@ public class AggregationParser {
         Executor root = null;
 
         if (isPersistedAggregation) {
-            for (int i = allIncrementalDurations.size() - 1; i >= 0; i--) {
+            for (int i = incrementalDurations.size() - 1; i >= 0; i--) {
                 // Base incremental expression executors created using new meta
                 boolean isRoot = false;
                 if (i == 0) {
                     isRoot = true;
                 }
                 child = root;
-                TimePeriod.Duration duration = allIncrementalDurations.get(i);
+                TimePeriod.Duration duration = incrementalDurations.get(i);
                 Executor incrementalExecutor;
                 if (duration == TimePeriod.Duration.SECONDS || duration == TimePeriod.Duration.MINUTES ||
                         duration == TimePeriod.Duration.HOURS) {
-                    if (incrementalDurations.contains(duration)) {
-                        incrementalExecutor = new IncrementalExecutor(aggregatorName, duration,
-                                processExpressionExecutorsMap.get(duration), shouldUpdateTimestamp,
-                                groupByKeyGeneratorList.get(duration), isRoot, aggregationTables.get(duration),
-                                child, siddhiQueryContext, processedMetaStreamEvent, timeZone);
-                    } else {
-                        incrementalExecutor = new IncrementalExecutor(aggregatorName, duration,
-                                processExpressionExecutorsMap.get(incrementalDurations.get(0)), shouldUpdateTimestamp,
-                                groupByKeyGeneratorList.get(incrementalDurations.get(0)), isRoot, null,
-                                child, siddhiQueryContext, processedMetaStreamEvent, timeZone);
-                    }
+                    incrementalExecutor = new IncrementalExecutor(aggregatorName, duration,
+                            processExpressionExecutorsMap.get(duration), shouldUpdateTimestamp,
+                            groupByKeyGeneratorList.get(duration), isRoot, aggregationTables.get(duration),
+                            child, siddhiQueryContext, processedMetaStreamEvent, timeZone);
                 } else {
-                    if (incrementalDurations.contains(duration)) {
-                        incrementalExecutor = new PersistedIncrementalExecutor(aggregatorName, duration,
-                                processExpressionExecutorsMap.get(duration),
-                                child, siddhiQueryContext, generateCUDMetaStreamEvent(), timeZone,
-                                cudProcessors.get(duration));
-                    } else {
-                        incrementalExecutor = new PersistedIncrementalExecutor(aggregatorName, duration,
-                                processExpressionExecutorsMap.get(incrementalDurations.get(0)),
-                                child, siddhiQueryContext, generateCUDMetaStreamEvent(), timeZone,
-                                null);
-                    }
+                    incrementalExecutor = new PersistedIncrementalExecutor(aggregatorName, duration,
+                            processExpressionExecutorsMap.get(duration),
+                            child, siddhiQueryContext, generateCUDMetaStreamEvent(), timeZone,
+                            cudProcessors.get(duration));
                 }
                 incrementalExecutorMap.put(duration, incrementalExecutor);
                 root = incrementalExecutor;
