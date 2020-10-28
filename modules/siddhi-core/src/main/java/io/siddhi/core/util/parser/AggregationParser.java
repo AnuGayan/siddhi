@@ -132,6 +132,8 @@ import static io.siddhi.core.util.SiddhiConstants.UPDATED_TIMESTAMP;
  */
 public class AggregationParser {
 
+    public static Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap= new HashMap<>();
+
     public static AggregationRuntime parse(AggregationDefinition aggregationDefinition,
                                            SiddhiAppContext siddhiAppContext,
                                            Map<String, AbstractDefinition> streamDefinitionMap,
@@ -419,6 +421,8 @@ public class AggregationParser {
                     incrementalDurations, aggregationTables, siddhiQueryContext,
                     aggregatorName, shouldUpdateTimestamp, timeZone, isPersistedAggregation, cudProcessors);
 
+            aggregationDurationExecutorMap.put(aggregatorName,incrementalExecutorMap);
+
             isOptimisedLookup = isOptimisedLookup &&
                     aggregationTables.get(incrementalDurations.get(0)) instanceof QueryableProcessor;
 
@@ -488,6 +492,10 @@ public class AggregationParser {
             ExceptionUtil.populateQueryContext(t, aggregationDefinition, siddhiAppContext);
             throw t;
         }
+    }
+
+    public static Map<String, Map<TimePeriod.Duration, Executor>> getAggregationDurationExecutorMap(){
+        return aggregationDurationExecutorMap;
     }
 
     private static String getTimeZone(SiddhiAppContext siddhiAppContext) {
