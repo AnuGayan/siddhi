@@ -129,7 +129,7 @@ import static io.siddhi.core.util.SiddhiConstants.UPDATED_TIMESTAMP;
  */
 public class AggregationParser {
     private static final Logger log = Logger.getLogger(AggregationParser.class);
-    public static Map<String,Map<TimePeriod.Duration,Executor>> aggregationDurationExecutorMap;
+    public static Map<String,Map<TimePeriod.Duration,Executor>> aggregationDurationExecutorMap = new HashMap<>();
 
     public static AggregationRuntime parse(AggregationDefinition aggregationDefinition,
                                            SiddhiAppContext siddhiAppContext,
