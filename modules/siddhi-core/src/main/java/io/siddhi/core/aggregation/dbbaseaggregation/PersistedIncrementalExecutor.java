@@ -57,9 +57,9 @@ public class PersistedIncrementalExecutor implements Executor {
 
     public PersistedIncrementalExecutor(String aggregatorName, TimePeriod.Duration duration,
                                         List<ExpressionExecutor> processExpressionExecutors,
-                                        Executor child,
-                                        SiddhiQueryContext siddhiQueryContext, MetaStreamEvent metaStreamEvent,
-                                        String timeZone, Processor cudStreamProcessor) {
+                                        Executor child, SiddhiQueryContext siddhiQueryContext,
+                                        MetaStreamEvent metaStreamEvent, String timeZone,
+                                        Processor cudStreamProcessor) {
         this.timeZone = timeZone;
         this.duration = duration;
         this.next = child;
@@ -141,14 +141,16 @@ public class PersistedIncrementalExecutor implements Executor {
                                     " Retrying the transaction attempt " + (i - 1), e);
                             continue;
                         }
-                        log.error("Error occurred while executing the aggregation for data between " + startTime.toString() +
-                                " - " + endTime + " for duration" + duration + " Retry attempts  " + (i - 1) + " The " +
-                                "Should be investigated since this will lead to a data mismatch");
+                        log.error("Error occurred while executing the aggregation for data between "
+                                + startTime.toString() + " - " + endTime + " for duration" + duration +
+                                " Retry attempts  " + (i - 1) + " The Should be investigated since this will lead to " +
+                                "a data mismatch");
                         return;
                     }
-                    if (e.getCause().getMessage().contains("Constrain violation"))
-                        log.error("Error occurred while executing the aggregation for data between " + startTime.toString() +
-                                " - " + endTime + " for duration" + duration);
+                    if (e.getCause().getMessage().contains("Constrain violation")) {
+                        log.error("Error occurred while executing the aggregation for data between "
+                                + startTime.toString() + " - " + endTime + " for duration" + duration);
+                    }
                 }
             }
         }

@@ -74,6 +74,10 @@ public class DBAggregationQueryConfigurationEntry {
         return category;
     }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     @XmlElement(name = "batchEnable")
     public boolean getBatchEnable() {
         return batchEnable;
@@ -90,10 +94,6 @@ public class DBAggregationQueryConfigurationEntry {
 
     public void setCollation(String collation) {
         this.collation = collation;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
     }
 
     public String getStringSize() {
@@ -153,7 +153,8 @@ public class DBAggregationQueryConfigurationEntry {
         return dbAggregationSelectFunctionTemplate;
     }
 
-    public void setRdbmsSelectFunctionTemplate(DBAggregationSelectFunctionTemplate dbAggregationSelectFunctionTemplate) {
+    public void setRdbmsSelectFunctionTemplate(DBAggregationSelectFunctionTemplate
+                                                       dbAggregationSelectFunctionTemplate) {
         this.dbAggregationSelectFunctionTemplate = dbAggregationSelectFunctionTemplate;
     }
 }

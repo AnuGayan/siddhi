@@ -80,12 +80,8 @@ import io.siddhi.query.api.definition.AggregationDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.definition.StreamDefinition;
 import io.siddhi.query.api.definition.TableDefinition;
-import io.siddhi.query.api.execution.query.Query;
 import io.siddhi.query.api.execution.query.input.handler.StreamFunction;
 import io.siddhi.query.api.execution.query.input.handler.StreamHandler;
-import io.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
-import io.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
-import io.siddhi.query.api.execution.query.output.stream.OutputStream;
 import io.siddhi.query.api.execution.query.selection.OutputAttribute;
 import io.siddhi.query.api.execution.query.selection.Selector;
 import io.siddhi.query.api.expression.AttributeFunction;
@@ -94,6 +90,7 @@ import io.siddhi.query.api.expression.Variable;
 import io.siddhi.query.api.expression.constant.StringConstant;
 import io.siddhi.query.api.extension.Extension;
 import io.siddhi.query.api.util.AnnotationHelper;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,8 +128,7 @@ import static io.siddhi.core.util.SiddhiConstants.UPDATED_TIMESTAMP;
  * This is the parser class of incremental aggregation definition.
  */
 public class AggregationParser {
-
-    public static Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap= new HashMap<>();
+    private static final Logger log = Logger.getLogger(AggregationParser.class);
 
     public static AggregationRuntime parse(AggregationDefinition aggregationDefinition,
                                            SiddhiAppContext siddhiAppContext,
@@ -146,13 +142,20 @@ public class AggregationParser {
                                            SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder) {
         //set timeZone for aggregation
         String timeZone = getTimeZone(siddhiAppContext);
+        boolean isDebugEnabled = log.isDebugEnabled();
         boolean isPersistedAggregation = false;
         if (!validateTimeZone(timeZone)) {
             throw new SiddhiAppCreationException(
                     "Given timeZone '" + timeZone + "' for aggregations is invalid. Please provide a valid time zone."
             );
         }
+        //get aggregation name
+        String aggregatorName = aggregationDefinition.getId();
 
+        if (isDebugEnabled) {
+            log.debug("Incremental aggregation initialization process started for aggregation "
+                    + aggregatorName);
+        }
         Annotation aggregationProperties = AnnotationHelper.getAnnotation("aggregationProperties",
                 aggregationDefinition.getAnnotations());
         String aggregationMode = "inmemory";
@@ -162,11 +165,9 @@ public class AggregationParser {
         if (aggregationMode.equals("persisted")) {
             isPersistedAggregation = true;
         }
-
-        if (aggregationDefinition == null) {
-            throw new SiddhiAppCreationException(
-                    "Aggregation Definition instance is null. " +
-                            "Hence, can't create the siddhi app '" + siddhiAppContext.getName() + "'");
+        if (isDebugEnabled) {
+            log.debug("Aggregation mode is defined as " + aggregationMode + " for aggregation "
+                    + aggregatorName);
         }
         if (aggregationDefinition.getTimePeriod() == null) {
             throw new SiddhiAppCreationException(
@@ -197,8 +198,6 @@ public class AggregationParser {
         try {
             List<VariableExpressionExecutor> incomingVariableExpressionExecutors = new ArrayList<>();
 
-            //get aggregation name
-            String aggregatorName = aggregationDefinition.getId();
             SiddhiQueryContext siddhiQueryContext = new SiddhiQueryContext(siddhiAppContext, aggregatorName);
 
             StreamRuntime streamRuntime = InputStreamParser.parse(aggregationDefinition.getBasicSingleInputStream(),
@@ -262,6 +261,11 @@ public class AggregationParser {
                 isDistributed = false;
             }
 
+            if (isDebugEnabled) {
+                log.debug("Distributed aggregation processing is " + (isDistributed ? "enabled" : "disabled") +
+                        " in " + aggregatorName + " aggregation ");
+            }
+
             populateIncomingAggregatorsAndExecutors(aggregationDefinition, siddhiQueryContext, tableMap,
                     incomingVariableExpressionExecutors, incomingMetaStreamEvent, incomingExpressionExecutors,
                     incrementalAttributeAggregators, groupByVariableList, outputExpressions, isProcessingOnExternalTime,
@@ -279,6 +283,12 @@ public class AggregationParser {
             boolean isOptimisedLookup = populateFinalBaseAggregators(tableMap, incomingVariableExpressionExecutors,
                     incomingMetaStreamEvent, incomingExpressionExecutors, incrementalAttributeAggregators,
                     siddhiQueryContext, finalBaseExpressions);
+
+            if (isDebugEnabled) {
+                log.debug("Optimised lookup mode is " + (isOptimisedLookup ? "enabled" : "disabled") + " for " +
+                        "aggregation " + aggregatorName);
+            }
+
             // Creating an intermediate stream with aggregated stream and above extracted output variables
             StreamDefinition incomingOutputStreamDefinition = StreamDefinition.id(aggregatorName + "_intermediate");
             incomingOutputStreamDefinition.setQueryContextStartIndex(aggregationDefinition.getQueryContextStartIndex());
@@ -406,14 +416,14 @@ public class AggregationParser {
             Map<TimePeriod.Duration, Table> aggregationTables = initDefaultTables(aggregatorName,
                     incrementalDurations, processedMetaStreamEvent.getOutputStreamDefinition(),
                     siddhiAppRuntimeBuilder, aggregationDefinition.getAnnotations(), groupByVariableList,
-                    isProcessingOnExternalTime, isDistributed);
+                    isProcessingOnExternalTime, isDistributed, activeIncrementalDurations);
             Map<TimePeriod.Duration, Processor> cudProcessors = null;
+
             if (isPersistedAggregation) {
-                cudProcessors = initAggregateQueryExecutor(
-                        incrementalDurations, processExpressionExecutorsMap, incomingOutputStreamDefinition,
-                        streamRuntime, isDistributed, shardId, isProcessingOnExternalTime,
-                        siddhiQueryContext, aggregationDefinition, siddhiAppContext,
-                        configManager, aggregationTables);
+                cudProcessors = initAggregateQueryExecutor(incrementalDurations, processExpressionExecutorsMap,
+                        incomingOutputStreamDefinition, isDistributed, shardId, isProcessingOnExternalTime,
+                        siddhiQueryContext, aggregationDefinition, configManager, aggregationTables,
+                        activeIncrementalDurations);
             }
 
             Map<TimePeriod.Duration, Executor> incrementalExecutorMap = buildIncrementalExecutors(
@@ -421,10 +431,8 @@ public class AggregationParser {
                     incrementalDurations, aggregationTables, siddhiQueryContext,
                     aggregatorName, shouldUpdateTimestamp, timeZone, isPersistedAggregation, cudProcessors);
 
-            aggregationDurationExecutorMap.put(aggregatorName,incrementalExecutorMap);
-
             isOptimisedLookup = isOptimisedLookup &&
-                    aggregationTables.get(incrementalDurations.get(0)) instanceof QueryableProcessor;
+                    aggregationTables.get(activeIncrementalDurations.get(0)) instanceof QueryableProcessor;
 
             List<String> groupByVariablesList = groupByVariableList.stream()
                     .map(Variable::getAttributeName)
@@ -439,13 +447,12 @@ public class AggregationParser {
 
             IncrementalDataPurger incrementalDataPurger = new IncrementalDataPurger();
             incrementalDataPurger.init(aggregationDefinition, new StreamEventFactory(processedMetaStreamEvent)
-                    , aggregationTables, isProcessingOnExternalTime, siddhiQueryContext);
+                    , aggregationTables, isProcessingOnExternalTime, siddhiQueryContext, activeIncrementalDurations);
 
             //Recreate in-memory data from tables
             IncrementalExecutorsInitialiser incrementalExecutorsInitialiser = new IncrementalExecutorsInitialiser(
-                    incrementalDurations, aggregationTables, incrementalExecutorMap, isDistributed, shardId,
-                    siddhiAppContext, processedMetaStreamEvent, tableMap, windowMap, aggregationMap, timeZone,
-                    isPersistedAggregation);
+                    activeIncrementalDurations, aggregationTables, incrementalExecutorMap, isDistributed, shardId,
+                    siddhiAppContext, processedMetaStreamEvent, tableMap, windowMap, aggregationMap, timeZone);
 
             IncrementalExecutor rootIncrementalExecutor = (IncrementalExecutor) incrementalExecutorMap.
                     get(incrementalDurations.get(0));
@@ -474,12 +481,12 @@ public class AggregationParser {
             }
 
             AggregationRuntime aggregationRuntime = new AggregationRuntime(aggregationDefinition,
-                    isProcessingOnExternalTime, isDistributed, activeIncrementalDurations, incrementalExecutorMap,
-                    aggregationTables, outputExpressionExecutors, processExpressionExecutorsMapForFind,
-                    shouldUpdateTimestamp, groupByKeyGeneratorMapForReading, isOptimisedLookup, defaultSelectorList,
-                    groupByVariablesList, isLatestEventColAdded, baseAggregatorBeginIndex,
-                    finalBaseExpressions, incrementalDataPurger, incrementalExecutorsInitialiser,
-                    ((SingleStreamRuntime) streamRuntime), processedMetaStreamEvent,
+                    isProcessingOnExternalTime, isDistributed, incrementalDurations, activeIncrementalDurations,
+                    incrementalExecutorMap, aggregationTables, outputExpressionExecutors,
+                    processExpressionExecutorsMapForFind, shouldUpdateTimestamp, groupByKeyGeneratorMapForReading,
+                    isOptimisedLookup, defaultSelectorList, groupByVariablesList, isLatestEventColAdded,
+                    baseAggregatorBeginIndex, finalBaseExpressions, incrementalDataPurger,
+                    incrementalExecutorsInitialiser, ((SingleStreamRuntime) streamRuntime), processedMetaStreamEvent,
                     latencyTrackerFind, throughputTrackerFind, timeZone);
 
             streamRuntime.setCommonProcessor(new IncrementalAggregationProcessor(aggregationRuntime,
@@ -492,10 +499,6 @@ public class AggregationParser {
             ExceptionUtil.populateQueryContext(t, aggregationDefinition, siddhiAppContext);
             throw t;
         }
-    }
-
-    public static Map<String, Map<TimePeriod.Duration, Executor>> getAggregationDurationExecutorMap(){
-        return aggregationDurationExecutorMap;
     }
 
     private static String getTimeZone(SiddhiAppContext siddhiAppContext) {
@@ -531,6 +534,9 @@ public class AggregationParser {
         if (isPersistedAggregation) {
             for (int i = incrementalDurations.size() - 1; i >= 0; i--) {
                 // Base incremental expression executors created using new meta
+
+                // Add an object to aggregationTable map inorder fill up the missing durations
+                aggregationTables.putIfAbsent(incrementalDurations.get(i), null);
                 boolean isRoot = false;
                 if (i == 0) {
                     isRoot = true;
@@ -1013,7 +1019,7 @@ public class AggregationParser {
             String aggregatorName, List<TimePeriod.Duration> durations,
             StreamDefinition streamDefinition, SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
             List<Annotation> annotations, List<Variable> groupByVariableList, boolean isProcessingOnExternalTime,
-            boolean enablePartioning) {
+            boolean enablePartioning, List<TimePeriod.Duration> activeIncrementalDurations) {
 
         HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
 
@@ -1031,7 +1037,7 @@ public class AggregationParser {
             primaryKeyAnnotation.element(null, groupByVariable.getAttributeName());
         }
         annotations.add(primaryKeyAnnotation);
-        for (TimePeriod.Duration duration : durations) {
+        for (TimePeriod.Duration duration : activeIncrementalDurations) {
             String tableId = aggregatorName + "_" + duration.toString();
             TableDefinition tableDefinition = TableDefinition.id(tableId);
             for (Attribute attribute : streamDefinition.getAttributeList()) {
@@ -1047,10 +1053,11 @@ public class AggregationParser {
     private static Map<TimePeriod.Duration, Processor> initAggregateQueryExecutor(
             List<TimePeriod.Duration> aggregationDurations,
             Map<TimePeriod.Duration, List<ExpressionExecutor>> processExpressionExecutorsMap,
-            StreamDefinition incomingOutputStreamDefinition, StreamRuntime streamRuntime, boolean isDistributed,
+            StreamDefinition incomingOutputStreamDefinition, boolean isDistributed,
             String shardID, boolean isProcessingOnExternalTime, SiddhiQueryContext siddhiQueryContext,
-            AggregationDefinition aggregationDefinition, SiddhiAppContext siddhiAppContext,
-            ConfigManager configManager, Map<TimePeriod.Duration, Table> aggregationTables) {
+            AggregationDefinition aggregationDefinition, ConfigManager configManager,
+            Map<TimePeriod.Duration, Table> aggregationTables,
+            List<TimePeriod.Duration> activeIncrementalDurations) {
 
         Map<TimePeriod.Duration, Processor> cudProcessors = new LinkedHashMap<>();
         String datasourceName = AnnotationHelper.getAnnotationElement(SiddhiConstants.NAMESPACE_STORE,
@@ -1069,54 +1076,58 @@ public class AggregationParser {
             DBAggregationQueryConfigurationEntry dbAggregationQueryConfigurationEntry = DBAggregationQueryUtil.
                     lookupCurrentQueryConfigurationEntry(databaseType);
 
-            for (int i = aggregationDurations.size() - 1; i > 0; i--) {
-                if (aggregationDurations.get(i) != TimePeriod.Duration.SECONDS ||
-                        aggregationDurations.get(i) != TimePeriod.Duration.MINUTES ||
-                        aggregationDurations.get(i) != TimePeriod.Duration.HOURS) {
-                    List<ExpressionExecutor> cudStreamProcessorInputVariables = new ArrayList<>();
-                    String databaseSelectQuery = generateDatabaseQuery(processExpressionExecutorsMap.
-                                    get(aggregationDurations.get(i)), dbAggregationQueryConfigurationEntry,
-                            incomingOutputStreamDefinition, isDistributed, shardID, isProcessingOnExternalTime,
-                            aggregationTables.get(aggregationDurations.get(i)),
-                            aggregationTables.get(aggregationDurations.get(i - 1)));
-                    StringConstant selectQuery = new StringConstant(databaseSelectQuery);
-                    ConstantExpressionExecutor selectExecutor = new ConstantExpressionExecutor(selectQuery.getValue(),
-                            Attribute.Type.STRING);
-                    List<Attribute> cudInputStreamAttributesList = generateCUDInputStreamAttributes();
-                    cudStreamProcessorInputVariables.add(datasourceExecutor);
-                    cudStreamProcessorInputVariables.add(selectExecutor);
-                    queryParams.add(datasource);
-                    queryParams.add(selectQuery);
-                    MetaStreamEvent metaStreamEvent = generateCUDMetaStreamEvent();
-                    StreamDefinition outputStream = new StreamDefinition();
-                    VariableExpressionExecutor variable;
-                    int j = 0;
-                    for (Attribute attribute : cudInputStreamAttributesList) {
-                        queryParams.add(new Variable(attribute.getName()));
-                        variable = new VariableExpressionExecutor(attribute, 0, 0);
-                        variable.setPosition(new int[]{2, j});
-                        cudStreamProcessorInputVariables.add(variable);
-                        if (attribute.getName().equals(UPDATED_TIMESTAMP)) {
+            for (int i = activeIncrementalDurations.size() - 1; i > 0; i--) {
+                if (activeIncrementalDurations.contains(aggregationDurations.get(i))) {
+                    if (aggregationDurations.get(i) != TimePeriod.Duration.SECONDS ||
+                            aggregationDurations.get(i) != TimePeriod.Duration.MINUTES ||
+                            aggregationDurations.get(i) != TimePeriod.Duration.HOURS) {
+                        log.debug(" Initializing cudProcessors for durations ");
+                        List<ExpressionExecutor> cudStreamProcessorInputVariables = new ArrayList<>();
+                        String databaseSelectQuery = generateDatabaseQuery(processExpressionExecutorsMap.
+                                        get(aggregationDurations.get(i)), dbAggregationQueryConfigurationEntry,
+                                incomingOutputStreamDefinition, isDistributed, shardID, isProcessingOnExternalTime,
+                                aggregationTables.get(aggregationDurations.get(i)),
+                                aggregationTables.get(aggregationDurations.get(i - 1)));
+                        StringConstant selectQuery = new StringConstant(databaseSelectQuery);
+                        ConstantExpressionExecutor selectExecutor = new ConstantExpressionExecutor(selectQuery.getValue(),
+                                Attribute.Type.STRING);
+                        List<Attribute> cudInputStreamAttributesList = generateCUDInputStreamAttributes();
+                        cudStreamProcessorInputVariables.add(datasourceExecutor);
+                        cudStreamProcessorInputVariables.add(selectExecutor);
+                        queryParams.add(datasource);
+                        queryParams.add(selectQuery);
+                        MetaStreamEvent metaStreamEvent = generateCUDMetaStreamEvent();
+                        StreamDefinition outputStream = new StreamDefinition();
+                        VariableExpressionExecutor variable;
+                        int j = 0;
+                        for (Attribute attribute : cudInputStreamAttributesList) {
                             queryParams.add(new Variable(attribute.getName()));
                             variable = new VariableExpressionExecutor(attribute, 0, 0);
                             variable.setPosition(new int[]{2, j});
                             cudStreamProcessorInputVariables.add(variable);
+                            if (attribute.getName().equals(UPDATED_TIMESTAMP)) {
+                                queryParams.add(new Variable(attribute.getName()));
+                                variable = new VariableExpressionExecutor(attribute, 0, 0);
+                                variable.setPosition(new int[]{2, j});
+                                cudStreamProcessorInputVariables.add(variable);
+                            }
+                            outputStream.attribute(attribute.getName(), attribute.getType());
+                            j++;
                         }
-                        outputStream.attribute(attribute.getName(), attribute.getType());
-                        j++;
-                    }
 
-                    Expression[] streamHandler = new Expression[queryParams.size()];
-                    int l = 0;
-                    for (Expression expression : queryParams) {
-                        streamHandler[i] = expression;
-                        l++;
-                    }
-                    StreamFunction cudStreamFunction = new StreamFunction("rdbms", "cud", streamHandler);
+                        Expression[] streamHandler = new Expression[queryParams.size()];
+                        int l = 0;
+                        for (Expression expression : queryParams) {
+                            streamHandler[i] = expression;
+                            l++;
+                        }
+                        StreamFunction cudStreamFunction = new StreamFunction("rdbms", "cud", streamHandler);
 
-                    cudProcessors.put(aggregationDurations.get(i), getCudProcessor(cudStreamFunction, siddhiQueryContext,
-                            siddhiAppContext, metaStreamEvent,
-                            cudStreamProcessorInputVariables, false, aggregationDurations.get(i)));
+                        cudProcessors.put(aggregationDurations.get(i), getCudProcessor(cudStreamFunction, siddhiQueryContext,
+                                metaStreamEvent, cudStreamProcessorInputVariables, false, aggregationDurations.get(i)));
+                    }
+                } else {
+                    cudProcessors.put(aggregationDurations.get(i), null);
                 }
             }
             return cudProcessors;
@@ -1221,7 +1232,7 @@ public class AggregationParser {
     private static Database getDatabaseType(ConfigManager configManager,
                                             AggregationDefinition aggregationDefinition, String datasourceName) {
         ConfigReader configReader = configManager.generateConfigReader("wso2.datasources", datasourceName);
-        String databaseType = configReader.readConfig("driverClassName", null);
+        String databaseType = configReader.readConfig("driverClassName", "null").toLowerCase();
         if (databaseType.contains("mysql")) {
             return Database.MYSQL;
         } else if (databaseType.contains("oracle")) {
@@ -1233,7 +1244,9 @@ public class AggregationParser {
         } else if (databaseType.contains("h2")) {
             return Database.H2;
         } else {
-            return Database.DEFAULT;
+            log.warn("Provided database type " + databaseType + "is not recognized as a supported database type for" +
+                    " persisted incremental aggregation, using MySQL as default ");
+            return Database.MYSQL;
         }
     }
 
@@ -1273,7 +1286,7 @@ public class AggregationParser {
 
 
     private static Processor getCudProcessor(StreamHandler streamHandler, SiddhiQueryContext siddhiQueryContext,
-                                             SiddhiAppContext siddhiAppContext, MetaStreamEvent metaStreamEvent,
+                                             MetaStreamEvent metaStreamEvent,
                                              List<ExpressionExecutor> attributeExpressionExecutors,
                                              boolean outputExpectsExpiredEvents, TimePeriod.Duration duration) {
         ConfigReader configReader = siddhiQueryContext.getSiddhiContext().getConfigManager().
@@ -1304,43 +1317,6 @@ public class AggregationParser {
         abstractStreamProcessor.setNextProcessor(new CUDDataProcessor(duration));
         return abstractStreamProcessor;
     }
-
-    private static QuerySelector generateOutputQuerySelector(MetaStreamEvent customMetaStreamEvent, SiddhiQueryContext siddhiQueryContext) {
-        List<Attribute> outputDataAttributes = customMetaStreamEvent.getOutputData();
-        List<OutputAttribute> outputAttributes = new ArrayList<>();
-        for (Attribute attribute : outputDataAttributes) {
-            outputAttributes.add(new OutputAttribute(new Variable(attribute.getName())));
-        }
-        Selector selector = new Selector();
-        selector.addSelectionList(outputAttributes);
-        return new QuerySelector(null, selector, true, false, siddhiQueryContext);
-    }
-
-
-    private static Query cudStreamprocessorQuery(StreamFunction streamFunction, Selector selector) {
-        BasicSingleInputStream singleInputStream = new BasicSingleInputStream(null,
-                "inputStream");
-        List<StreamHandler> streamFunctions = new ArrayList<>();
-        streamFunctions.add(streamFunction);
-        singleInputStream.addStreamHandlers(streamFunctions);
-
-        InsertIntoStream insertIntoStream = new InsertIntoStream("outputStream",
-                OutputStream.OutputEventType.CURRENT_EVENTS);
-
-        Query query = new Query();
-        query.select(selector);
-        query.from(singleInputStream);
-        query.outStream(insertIntoStream);
-        return query;
-    }
-
-//    private static QueryRuntime parseCUDQuerySelector(Query query, List<AbstractDefinition> streamDefinitions,
-//                                                      SiddhiAppContext siddhiAppContext) {
-//
-//
-//       QueryRuntime queryRuntime = QueryParser.parse(query, siddhiAppContext, streamDefinitions, )
-//
-//    }
 
     public enum Database {
         MYSQL,

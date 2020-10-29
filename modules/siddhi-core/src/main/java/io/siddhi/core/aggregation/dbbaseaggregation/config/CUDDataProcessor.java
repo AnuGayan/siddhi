@@ -26,6 +26,9 @@ import org.apache.log4j.Logger;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Processor implementation to read the results after executing the aggregation query
+ **/
 public class CUDDataProcessor implements Processor {
     private static final Logger log = Logger.getLogger(CUDDataProcessor.class);
     private TimePeriod.Duration duration;

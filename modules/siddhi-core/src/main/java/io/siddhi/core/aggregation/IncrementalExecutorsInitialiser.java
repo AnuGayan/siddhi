@@ -64,7 +64,6 @@ public class IncrementalExecutorsInitialiser {
     private String timeZone;
 
     private boolean isInitialised;
-    private boolean isPersistedAggregation;
 
     public IncrementalExecutorsInitialiser(List<TimePeriod.Duration> incrementalDurations,
                                            Map<TimePeriod.Duration, Table> aggregationTables,
@@ -72,8 +71,7 @@ public class IncrementalExecutorsInitialiser {
                                            boolean isDistributed, String shardId, SiddhiAppContext siddhiAppContext,
                                            MetaStreamEvent metaStreamEvent, Map<String, Table> tableMap,
                                            Map<String, Window> windowMap,
-                                           Map<String, AggregationRuntime> aggregationMap, String timeZone,
-                                           boolean isPersistedAggregation) {
+                                           Map<String, AggregationRuntime> aggregationMap, String timeZone) {
         this.timeZone = timeZone;
         this.incrementalDurations = incrementalDurations;
         this.aggregationTables = aggregationTables;
@@ -90,7 +88,6 @@ public class IncrementalExecutorsInitialiser {
         this.aggregationMap = aggregationMap;
 
         this.isInitialised = false;
-        this.isPersistedAggregation = isPersistedAggregation;
     }
 
     public synchronized void initialiseExecutors() {
