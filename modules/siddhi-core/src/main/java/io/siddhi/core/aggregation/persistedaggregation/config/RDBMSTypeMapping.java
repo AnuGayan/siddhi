@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.siddhi.core.aggregation.dbbaseaggregation.config;
+package io.siddhi.core.aggregation.persistedaggregation.config;
 
 /**
  * This class represents the SQL datatype mappings required by Siddhi RDBMS Event Tables per supported DB vendor.

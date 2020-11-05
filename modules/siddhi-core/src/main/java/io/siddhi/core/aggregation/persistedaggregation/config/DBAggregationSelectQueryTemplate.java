@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.siddhi.core.aggregation.dbbaseaggregation.config;
+package io.siddhi.core.aggregation.persistedaggregation.config;
 
 /**
  * This class represents clauses of a SELECT query as required by Siddhi RDBMS Event Tables per supported DB vendor.
@@ -26,6 +26,8 @@ public class DBAggregationSelectQueryTemplate {
     private String selectClause;
     private String recordInsertQuery;
     private String selectQueryWithSubSelect;
+    private String selectQueryWithInnerSelect;
+    private String joinClause;
     private String whereClause;
     private String groupByClause;
     private String havingClause;
@@ -139,5 +141,21 @@ public class DBAggregationSelectQueryTemplate {
 
     public void setRecordInsertQuery(String recordInsertQuery) {
         this.recordInsertQuery = recordInsertQuery;
+    }
+
+    public String getSelectQueryWithInnerSelect() {
+        return selectQueryWithInnerSelect;
+    }
+
+    public void setSelectQueryWithInnerSelect(String selectQueryWithInnerSelect) {
+        this.selectQueryWithInnerSelect = selectQueryWithInnerSelect;
+    }
+
+    public String getJoinClause() {
+        return joinClause;
+    }
+
+    public void setJoinClause(String joinClause) {
+        this.joinClause = joinClause;
     }
 }

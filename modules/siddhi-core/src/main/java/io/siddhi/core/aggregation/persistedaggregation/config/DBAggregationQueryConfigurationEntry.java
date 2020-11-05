@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.siddhi.core.aggregation.dbbaseaggregation.config;
+package io.siddhi.core.aggregation.persistedaggregation.config;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

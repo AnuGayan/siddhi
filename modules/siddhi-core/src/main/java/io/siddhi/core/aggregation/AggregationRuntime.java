@@ -18,7 +18,7 @@
 
 package io.siddhi.core.aggregation;
 
-import io.siddhi.core.aggregation.dbbaseaggregation.PersistedIncrementalExecutor;
+import io.siddhi.core.aggregation.persistedaggregation.PersistedIncrementalExecutor;
 import io.siddhi.core.config.SiddhiQueryContext;
 import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.state.MetaStateEvent;
@@ -114,8 +114,7 @@ public class AggregationRuntime implements MemoryCalculable {
     private String timeZone;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition, boolean isProcessingOnExternalTime,
-                              boolean isDistributed, List<TimePeriod.Duration> incrementalDurations,
-                              List<TimePeriod.Duration> activeIncrementalDurations,
+                              boolean isDistributed, List<TimePeriod.Duration> aggregationDurations,
                               Map<TimePeriod.Duration, Executor> incrementalExecutorMap,
                               Map<TimePeriod.Duration, Table> aggregationTables,
                               List<ExpressionExecutor> outputExpressionExecutors,
@@ -134,8 +133,8 @@ public class AggregationRuntime implements MemoryCalculable {
         this.aggregationDefinition = aggregationDefinition;
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.isDistributed = isDistributed;
-        this.incrementalDurations = incrementalDurations;
-        this.activeIncrementalDurations = activeIncrementalDurations;
+        this.incrementalDurations = aggregationDurations;
+        this.activeIncrementalDurations = aggregationDurations;
         this.incrementalExecutorMap = incrementalExecutorMap;
         this.aggregationTables = aggregationTables;
         this.tableAttributesNameList = tableMetaStreamEvent.getInputDefinitions().get(0).getAttributeList()

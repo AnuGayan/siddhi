@@ -81,6 +81,7 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_ELEMENT_INTERVAL = "interval";
     public static final String ANNOTATION_ELEMENT_INCLUDE = "include";
     public static final String ANNOTATION_PARTITION_BY_ID = "PartitionById";
+    public static final String ANNOTATION_PERSISTED_AGGREGATION = "persistedAggregation";
 
     public static final String TRUE = "true";
     public static final String TRIGGER_START = "start";
@@ -149,6 +150,8 @@ public final class SiddhiConstants {
     public static final String ENABLE_EVENT_COUNT_LOGGER = "enableLoggingEventCount";
     public static final String LOGGING_DURATION = "loggingDuration";
 
+    public static final String NAMESPACE_RDBMS = "rdbms";
+    public static final String FUNCTION_NAME_CUD = "cud";
     public static final String DB_AGGREGATION_CONFIG_FILE = "db-aggregation-config.xml";
     public static final String PLACEHOLDER_TABLE_NAME = "{{TABLE_NAME}}";
     public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS}}";
@@ -156,11 +159,21 @@ public final class SiddhiConstants {
     public static final String PLACEHOLDER_QUERY = "{{QUERY}}";
     public static final String PLACEHOLDER_SELECTORS = "{{SELECTORS}}";
     public static final String PLACEHOLDER_CONDITION = "{{CONDITION}}";
+    public static final String PLACEHOLDER_INNER_QUERY = "{{INNER_QUERY}}";
+    public static final String PLACEHOLDER_FROM_CONDITION = "{{FROM_CONDITION}}";
 
     public static final String INSERT_TO_TABLE_NAME = "TO_TABLE_NAME";
     public static final String FROM_TABLE_NAME = "FROM_TABLE_NAME";
     public static final String UPDATED_TIMESTAMP = "UPDATED_TIMESTAMP";
     public static final String FROM_TIMESTAMP = "FROM_TIMESTAMP";
     public static final String TO_TIMESTAMP = "TO_TIMESTAMP";
+    public static final String SUB_SELECT_QUERY_REF_T2 = "t2";
+    public static final String SUB_SELECT_QUERY_REF_T1 = "t1";
+    public static final String EQUALS = " = ";
+    public static final String SQL_AS = " AS ";
+    public static final String SQL_AND = " AND ";
+    public static final String SQL_ON = " ON ";
+    public static final String SQL_SELECT = " SELECT ";
+    public static final String SQL_FROM = " FROM ";
 
 }

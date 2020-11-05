@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.siddhi.core.aggregation.dbbaseaggregation;
+package io.siddhi.core.aggregation.persistedaggregation;
 
 import io.siddhi.core.aggregation.Executor;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -34,8 +34,10 @@ import io.siddhi.query.api.aggregation.TimePeriod;
 import org.apache.log4j.Logger;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +97,7 @@ public class PersistedIncrementalExecutor implements Executor {
                             timestamp, duration, timeZone);
                     executorState.nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(
                             timestamp, duration, timeZone);
-                    dispatchAggregateEvents(startedTime, emittedTime);
+                    dispatchAggregateEvents(startedTime, emittedTime, timeZone);
                     sendTimerEvent(executorState);
                 }
             } finally {
@@ -104,15 +106,17 @@ public class PersistedIncrementalExecutor implements Executor {
         }
     }
 
-    private void dispatchAggregateEvents(long startTimeOfNewAggregates, long emittedTime) {
+    private void dispatchAggregateEvents(long startTimeOfNewAggregates, long emittedTime, String timeZone) {
         if (emittedTime != -1) {
-            dispatchEvent(startTimeOfNewAggregates, emittedTime);
+            dispatchEvent(startTimeOfNewAggregates, emittedTime, timeZone);
         }
     }
 
-    private void dispatchEvent(long startTimeOfNewAggregates, long emittedTime) {
-        Date startTime = new Date(startTimeOfNewAggregates);
-        Date endTime = new Date(emittedTime);
+    private void dispatchEvent(long startTimeOfNewAggregates, long emittedTime, String timeZone) {
+        ZonedDateTime startTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTimeOfNewAggregates),
+                ZoneId.of(timeZone));
+        ZonedDateTime endTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(emittedTime),
+                ZoneId.of(timeZone));
         log.info("Aggregation event dispatched for the duration " + duration + " to aggregate data from "
                 + startTime.toString() + " to " + endTime.toString() + " ");
         ComplexEventChunk complexEventChunk = new ComplexEventChunk();
@@ -121,8 +125,8 @@ public class PersistedIncrementalExecutor implements Executor {
         streamEvent.setTimestamp(emittedTime);
         List<Object> outputDataList = new ArrayList<>();
         outputDataList.add(startTimeOfNewAggregates);
-        outputDataList.add(startTimeOfNewAggregates);
         outputDataList.add(emittedTime);
+        outputDataList.add(null);
         streamEvent.setOutputData(outputDataList.toArray());
 
         if (isProcessingExecutor) {
@@ -135,22 +139,21 @@ public class PersistedIncrementalExecutor implements Executor {
                     return;
                 } catch (Exception e) {
                     if (e.getCause() instanceof SQLException) {
-                        if (((SQLException) e.getCause()).getSQLState().startsWith("08") && i < 3) {
+                        if (e.getCause().getLocalizedMessage().contains("try restarting transaction") && i < 3) {
                             log.error("Error occurred while executing the aggregation for data between " +
-                                    startTime.toString() + " - " + endTime + " for duration " + duration +
+                                    startTimeOfNewAggregates + " - " + emittedTime + " for duration " + duration +
                                     " Retrying the transaction attempt " + (i - 1), e);
                             continue;
                         }
                         log.error("Error occurred while executing the aggregation for data between "
-                                + startTime.toString() + " - " + endTime + " for duration" + duration +
-                                " Retry attempts  " + (i - 1) + " The Should be investigated since this will lead to " +
-                                "a data mismatch");
-                        return;
-                    }
-                    if (e.getCause().getMessage().contains("Constrain violation")) {
+                                + startTimeOfNewAggregates + " - " + emittedTime + " for duration " + duration +
+                                " Retry attempts  " + (i - 1) + " This Should be investigated since this will lead " +
+                                "to a data mismatch\n", e);
+                    } else {
                         log.error("Error occurred while executing the aggregation for data between "
-                                + startTime.toString() + " - " + endTime + " for duration" + duration);
+                                + startTimeOfNewAggregates + " - " + emittedTime + " for duration \n" + duration, e);
                     }
+                    return;
                 }
             }
         }

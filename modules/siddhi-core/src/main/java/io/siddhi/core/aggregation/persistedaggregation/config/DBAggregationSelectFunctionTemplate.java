@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.siddhi.core.aggregation.dbbaseaggregation.config;
+package io.siddhi.core.aggregation.persistedaggregation.config;
 
 /**
  * This class contains Select functions query configuration mappings.
@@ -25,6 +25,7 @@ public class DBAggregationSelectFunctionTemplate {
     private String sumFunction;
     private String countFunction;
     private String maxFunction;
+    private String timeConversionFunction;
 
 
     public String getSumFunction() {
@@ -49,5 +50,13 @@ public class DBAggregationSelectFunctionTemplate {
 
     public void setMaxFunction(String maxFunction) {
         this.maxFunction = maxFunction;
+    }
+
+    public String getTimeConversionFunction() {
+        return timeConversionFunction;
+    }
+
+    public void setTimeConversionFunction(String timeConversionFunction) {
+        this.timeConversionFunction = timeConversionFunction;
     }
 }

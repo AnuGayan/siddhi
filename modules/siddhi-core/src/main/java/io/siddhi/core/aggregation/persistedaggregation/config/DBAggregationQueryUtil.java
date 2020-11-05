@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.siddhi.core.aggregation.dbbaseaggregation.config;
+package io.siddhi.core.aggregation.persistedaggregation.config;
 
 import com.google.common.collect.Maps;
 import io.siddhi.core.exception.CannotLoadConfigurationException;

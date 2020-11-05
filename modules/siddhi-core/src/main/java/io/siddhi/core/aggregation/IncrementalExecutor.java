@@ -52,6 +52,7 @@ public class IncrementalExecutor implements Executor {
     private final ExpressionExecutor timestampExpressionExecutor;
     private final StateHolder<ExecutorState> stateHolder;
     private final String siddhiAppName;
+    boolean waitUntillprocessFinish = false;
     private TimePeriod.Duration duration;
     private Table table;
     private boolean isRoot;
@@ -62,7 +63,6 @@ public class IncrementalExecutor implements Executor {
     private Scheduler scheduler;
     private ExecutorService executorService;
     private String timeZone;
-
     private BaseIncrementalValueStore baseIncrementalValueStore;
 
     public IncrementalExecutor(String aggregatorName, TimePeriod.Duration duration,
@@ -70,7 +70,7 @@ public class IncrementalExecutor implements Executor {
                                ExpressionExecutor shouldUpdateTimestamp, GroupByKeyGenerator groupByKeyGenerator,
                                boolean isRoot, Table table, Executor child,
                                SiddhiQueryContext siddhiQueryContext, MetaStreamEvent metaStreamEvent,
-                               String timeZone) {
+                               String timeZone, boolean waitUntillprocessFinish) {
         this.timeZone = timeZone;
         this.aggregatorName = aggregatorName;
         this.duration = duration;
@@ -78,6 +78,7 @@ public class IncrementalExecutor implements Executor {
         this.table = table;
         this.next = child;
 
+        this.waitUntillprocessFinish = waitUntillprocessFinish;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
         this.streamEventFactory = new StreamEventFactory(metaStreamEvent);
 
@@ -206,7 +207,7 @@ public class IncrementalExecutor implements Executor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             }
-            if (isProcessingExecutor) {
+            if (isProcessingExecutor && !waitUntillprocessFinish) {
                 executorService.execute(() -> {
                             try {
                                 table.addEvents(tableEventChunk, streamEventMap.size());
@@ -218,6 +219,15 @@ public class IncrementalExecutor implements Executor {
                             }
                         }
                 );
+            } else if (isProcessingExecutor) {
+                try {
+                    table.addEvents(tableEventChunk, streamEventMap.size());
+                } catch (Throwable t) {
+                    LOG.error("Exception occurred at siddhi app '" + this.siddhiAppName +
+                            "' when performing table writes of aggregation '" + this.aggregatorName +
+                            "' for duration '" + this.duration + "'. This should be investigated as this " +
+                            "can cause accuracy loss.", t);
+                }
             }
             if (getNextExecutor() != null) {
                 next.execute(eventChunk);

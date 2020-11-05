@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.siddhi.core.aggregation.dbbaseaggregation.config;
+package io.siddhi.core.aggregation.persistedaggregation.config;
 
 import io.siddhi.core.event.ComplexEvent;
 import io.siddhi.core.event.ComplexEventChunk;
@@ -29,11 +29,11 @@ import java.util.List;
 /**
  * Processor implementation to read the results after executing the aggregation query
  **/
-public class CUDDataProcessor implements Processor {
-    private static final Logger log = Logger.getLogger(CUDDataProcessor.class);
+public class PersistedAggregationResultsProcessor implements Processor {
+    private static final Logger log = Logger.getLogger(PersistedAggregationResultsProcessor.class);
     private TimePeriod.Duration duration;
 
-    public CUDDataProcessor(TimePeriod.Duration duration) {
+    public PersistedAggregationResultsProcessor(TimePeriod.Duration duration) {
         this.duration = duration;
     }
 
@@ -42,11 +42,11 @@ public class CUDDataProcessor implements Processor {
         if (complexEventChunk != null) {
             ComplexEvent complexEvent = complexEventChunk.getFirst();
             Object[] outputData = complexEvent.getOutputData();
-            if (outputData.length == 4) {
+            if (outputData.length == 3) {
                 Date fromTime = new Date((Long) outputData[0]);
-                Date toTime = new Date((Long) outputData[2]);
+                Date toTime = new Date((Long) outputData[1]);
                 log.info("Aggregation executed for duration " + duration + " from " + fromTime + " to " +
-                        toTime + " and  " + outputData[3] + " records has been successfully updated ");
+                        toTime + " and  " + outputData[2] + " records has been successfully updated ");
             }
         }
     }

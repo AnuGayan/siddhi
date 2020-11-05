@@ -141,6 +141,7 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
                 variableExpExecutorsForTableLookups);
     }
 
+    // TODO: 11/2/20 Handle this for not Distributed use case
     public StreamEvent find(StateEvent matchingEvent,
                             Map<TimePeriod.Duration, Executor> incrementalExecutorMap,
                             Map<TimePeriod.Duration, List<ExpressionExecutor>> aggregateProcessingExecutorsMap,
@@ -246,7 +247,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
                         groupByKeyGeneratorMap.get(rootDuration) != null, tableMetaStreamEvent, timeZone);
                 ComplexEventChunk<StreamEvent> aggregatedInMemoryEventChunk;
                 // Aggregate in-memory data and create an event chunk out of it
-                // TODO: 10/23/20 Handle This with persisted aggregatioin
                 aggregatedInMemoryEventChunk = incrementalDataAggregator.aggregateInMemoryData(incrementalExecutorMap);
 
                 // Get the in-memory aggregate data, which is within given duration

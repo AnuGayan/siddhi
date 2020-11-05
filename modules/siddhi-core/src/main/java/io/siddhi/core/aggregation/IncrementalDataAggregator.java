@@ -90,37 +90,40 @@ public class IncrementalDataAggregator {
         Set<String> groupByKeys = new HashSet<>();
         for (int k = startIndex; k >= 0; k--) {
             TimePeriod.Duration duration = incrementalDurations.get(k);
-            IncrementalExecutor incrementalExecutor = (IncrementalExecutor) incrementalExecutorMap.get(duration);
-
-            BaseIncrementalValueStore aBaseIncrementalValueStore = incrementalExecutor.getBaseIncrementalValueStore();
-            Map<String, StreamEvent> groupedByEvents = aBaseIncrementalValueStore.getGroupedByEvents();
-            for (Map.Entry<String, StreamEvent> eventEntry : groupedByEvents.entrySet()) {
-                long startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
-                        eventEntry.getValue().getTimestamp(), durationToAggregate, timeZone);
-                String groupByKey = eventEntry.getKey() + "-" + startTimeOfAggregates;
-                synchronized (this) {
-                    groupByKeys.add(groupByKey);
-                    SiddhiAppContext.startGroupByFlow(groupByKey);
-                    ValueState state = (ValueState) valueStateHolder.getState();
-                    try {
-                        boolean shouldUpdate = true;
-                        if (shouldUpdateTimestamp != null) {
-                            shouldUpdate = shouldUpdate(shouldUpdateTimestamp.execute(eventEntry.getValue()), state);
-                        } else {
-                            state.lastTimestamp = oldestEventTimestamp;
-                        }
-                        // keeping timestamp value location as null
-                        for (int i = 0; i < baseExecutorsForFind.size(); i++) {
-                            ExpressionExecutor expressionExecutor = baseExecutorsForFind.get(i);
-                            if (shouldUpdate) {
-                                state.setValue(expressionExecutor.execute(eventEntry.getValue()), i + 1);
-                            } else if (!(expressionExecutor instanceof VariableExpressionExecutor)) {
-                                state.setValue(expressionExecutor.execute(eventEntry.getValue()), i + 1);
+            Executor incrementalExecutor = incrementalExecutorMap.get(duration);
+            if (incrementalExecutor instanceof IncrementalExecutor) {
+                BaseIncrementalValueStore aBaseIncrementalValueStore = ((IncrementalExecutor) incrementalExecutor)
+                        .getBaseIncrementalValueStore();
+                Map<String, StreamEvent> groupedByEvents = aBaseIncrementalValueStore.getGroupedByEvents();
+                for (Map.Entry<String, StreamEvent> eventEntry : groupedByEvents.entrySet()) {
+                    long startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
+                            eventEntry.getValue().getTimestamp(), durationToAggregate, timeZone);
+                    String groupByKey = eventEntry.getKey() + "-" + startTimeOfAggregates;
+                    synchronized (this) {
+                        groupByKeys.add(groupByKey);
+                        SiddhiAppContext.startGroupByFlow(groupByKey);
+                        ValueState state = (ValueState) valueStateHolder.getState();
+                        try {
+                            boolean shouldUpdate = true;
+                            if (shouldUpdateTimestamp != null) {
+                                shouldUpdate = shouldUpdate(shouldUpdateTimestamp.execute(eventEntry.getValue()),
+                                        state);
+                            } else {
+                                state.lastTimestamp = oldestEventTimestamp;
                             }
+                            // keeping timestamp value location as null
+                            for (int i = 0; i < baseExecutorsForFind.size(); i++) {
+                                ExpressionExecutor expressionExecutor = baseExecutorsForFind.get(i);
+                                if (shouldUpdate) {
+                                    state.setValue(expressionExecutor.execute(eventEntry.getValue()), i + 1);
+                                } else if (!(expressionExecutor instanceof VariableExpressionExecutor)) {
+                                    state.setValue(expressionExecutor.execute(eventEntry.getValue()), i + 1);
+                                }
+                            }
+                        } finally {
+                            valueStateHolder.returnState(state);
+                            SiddhiAppContext.stopGroupByFlow();
                         }
-                    } finally {
-                        valueStateHolder.returnState(state);
-                        SiddhiAppContext.stopGroupByFlow();
                     }
                 }
             }

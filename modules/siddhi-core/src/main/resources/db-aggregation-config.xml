@@ -2,9 +2,13 @@
 <rdbms-table-configuration>
     <database name="h2">
         <selectQueryTemplate>
-            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} </recordInsertQuery>
+            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}})</recordInsertQuery>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
             <whereClause>WHERE {{CONDITION}}</whereClause>
+            <selectQueryWithInnerSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}} WHERE {{COLUMN}} IN ({{INNER_QUERY}})
+            </selectQueryWithInnerSelect>
+            <joinClause>SELECT {{SELECTORS}} FROM ({{FROM_CONDITION}}) AS t1 JOIN ({{INNER_QUERY}}) AS t2 ON {{CONDITION}}
+            </joinClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
         </selectQueryTemplate>
         <selectQueryFunctions>
@@ -27,15 +31,19 @@
     </database>
     <database name="mysql">
         <selectQueryTemplate>
-            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} </recordInsertQuery>
+            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}})</recordInsertQuery>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
             <whereClause>WHERE {{CONDITION}}</whereClause>
+            <selectQueryWithInnerSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}} WHERE {{COLUMN}} IN ({{INNER_QUERY}})
+            </selectQueryWithInnerSelect>
+            <joinClause>SELECT {{SELECTORS}} FROM ({{FROM_CONDITION}}) AS t1 JOIN ({{INNER_QUERY}}) AS t2 ON {{CONDITION}}</joinClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
         </selectQueryTemplate>
         <selectQueryFunctions>
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
+            <timeConversionFunction>UNIX_TIMESTAMP(from_unixtime({{COLUMN}},{{TIME_FORMAT}}))</timeConversionFunction>
         </selectQueryFunctions>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -53,15 +61,21 @@
     </database>
     <database name="oracle">
         <selectQueryTemplate>
-            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} </recordInsertQuery>
+            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}})</recordInsertQuery>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
             <whereClause>WHERE {{CONDITION}}</whereClause>
+            <selectQueryWithInnerSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}} WHERE {{COLUMN}} IN ({{INNER_QUERY}})
+            </selectQueryWithInnerSelect>
+            <joinClause>SELECT {{SELECTORS}} FROM ({{FROM_CONDITION}}) t1 JOIN ({{INNER_QUERY}}) t2 ON {{CONDITION}}</joinClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
         </selectQueryTemplate>
         <selectQueryFunctions>
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
+            <timeConversionFunction>(to_date(trunc((to_date('19700101', 'YYYYMMDD') + ( 1 / 24 / 60 / 60 / 1000) *
+                {{TIME_STAMP}}), '{{DURATION}}'), 'YYYY/MM/DD') - to_date('19700101', 'YYYYMMDD')) * 86400000
+            </timeConversionFunction>
         </selectQueryFunctions>
         <stringSize>254</stringSize>
         <fieldSizeLimit>2000</fieldSizeLimit>
@@ -80,9 +94,12 @@
     </database>
     <database name="Microsoft SQL Server">
         <selectQueryTemplate>
-            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} </recordInsertQuery>
+            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}})</recordInsertQuery>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
             <whereClause>WHERE {{CONDITION}}</whereClause>
+            <selectQueryWithInnerSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}} WHERE {{COLUMN}} IN ({{INNER_QUERY}})
+            </selectQueryWithInnerSelect>
+            <joinClause>SELECT {{SELECTORS}} FROM ({{FROM_CONDITION}}) AS t1 JOIN ({{INNER_QUERY}}) AS t2 ON {{CONDITION}}</joinClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
         </selectQueryTemplate>
         <selectQueryFunctions>
@@ -106,9 +123,12 @@
     </database>
     <database name="PostgreSQL">
         <selectQueryTemplate>
-            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} </recordInsertQuery>
+            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}})</recordInsertQuery>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
             <whereClause>WHERE {{CONDITION}}</whereClause>
+            <selectQueryWithInnerSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}} WHERE {{COLUMN}} IN ({{INNER_QUERY}})
+            </selectQueryWithInnerSelect>
+            <joinClause>SELECT {{SELECTORS}} FROM ({{FROM_CONDITION}}) AS t1 JOIN ({{INNER_QUERY}}) AS t2 ON {{CONDITION}}</joinClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
         </selectQueryTemplate>
         <selectQueryFunctions>
@@ -131,9 +151,12 @@
     </database>
     <database name="DB2.*">
         <selectQueryTemplate>
-            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} </recordInsertQuery>
+            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}})</recordInsertQuery>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
             <whereClause>WHERE {{CONDITION}}</whereClause>
+            <selectQueryWithInnerSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}} WHERE {{COLUMN}} IN ({{INNER_QUERY}})
+            </selectQueryWithInnerSelect>
+            <joinClause>SELECT {{SELECTORS}} FROM ({{FROM_CONDITION}}) AS t1 JOIN ({{INNER_QUERY}}) AS t2 ON {{CONDITION}}</joinClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
         </selectQueryTemplate>
         <selectQueryFunctions>
@@ -157,9 +180,12 @@
     </database>
     <database name="Apache Derby">
         <selectQueryTemplate>
-            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} </recordInsertQuery>
+            <recordInsertQuery>INSERT INTO {{TABLE_NAME}} ({{COLUMNS}})</recordInsertQuery>
             <selectClause>SELECT {{SELECTORS}} FROM {{TABLE_NAME}}</selectClause>
             <whereClause>WHERE {{CONDITION}}</whereClause>
+            <selectQueryWithInnerSelect>SELECT {{SELECTORS}} FROM {{TABLE_NAME}} WHERE {{COLUMN}} IN ({{INNER_QUERY}})
+            </selectQueryWithInnerSelect>
+            <joinClause>SELECT {{SELECTORS}} FROM ({{FROM_CONDITION}}) AS t1 JOIN ({{INNER_QUERY}}) AS t2 ON {{CONDITION}}</joinClause>
             <groupByClause>GROUP BY {{COLUMNS}}</groupByClause>
         </selectQueryTemplate>
         <selectQueryFunctions>
