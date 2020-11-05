@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Incremental executor class which is responsible for performing incremental aggregation.
@@ -207,26 +209,29 @@ public class IncrementalExecutor implements Executor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             }
-            if (isProcessingExecutor && !waitUntillprocessFinish) {
-                executorService.execute(() -> {
-                            try {
-                                table.addEvents(tableEventChunk, streamEventMap.size());
-                            } catch (Throwable t) {
-                                LOG.error("Exception occurred at siddhi app '" + this.siddhiAppName +
-                                        "' when performing table writes of aggregation '" + this.aggregatorName +
-                                        "' for duration '" + this.duration + "'. This should be investigated as this " +
-                                        "can cause accuracy loss.", t);
-                            }
-                        }
-                );
-            } else if (isProcessingExecutor) {
+            Lock lock = new ReentrantLock();
+            if (isProcessingExecutor) {
                 try {
-                    table.addEvents(tableEventChunk, streamEventMap.size());
+                    if (lock.tryLock()) {
+                        executorService.execute(() -> {
+                            table.addEvents(tableEventChunk, streamEventMap.size());
+                        });
+                    }
                 } catch (Throwable t) {
                     LOG.error("Exception occurred at siddhi app '" + this.siddhiAppName +
                             "' when performing table writes of aggregation '" + this.aggregatorName +
                             "' for duration '" + this.duration + "'. This should be investigated as this " +
                             "can cause accuracy loss.", t);
+                } finally {
+                    lock.unlock();
+                }
+            }
+            if (waitUntillprocessFinish) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    LOG.error("Error occurred while waiting until table update task finishes for duration " +
+                            duration, e);
                 }
             }
             if (getNextExecutor() != null) {
