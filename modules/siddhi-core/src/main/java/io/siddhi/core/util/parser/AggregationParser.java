@@ -104,13 +104,41 @@ import java.util.TimeZone;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import static io.siddhi.core.util.SiddhiConstants.*;
+import static io.siddhi.core.util.SiddhiConstants.AGG_EXTERNAL_TIMESTAMP_COL;
+import static io.siddhi.core.util.SiddhiConstants.AGG_LAST_TIMESTAMP_COL;
+import static io.siddhi.core.util.SiddhiConstants.AGG_SHARD_ID_COL;
+import static io.siddhi.core.util.SiddhiConstants.AGG_START_TIMESTAMP_COL;
+import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_PARTITION_BY_ID;
+import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_PERSISTED_AGGREGATION;
+import static io.siddhi.core.util.SiddhiConstants.EQUALS;
+import static io.siddhi.core.util.SiddhiConstants.FROM_TIMESTAMP;
+import static io.siddhi.core.util.SiddhiConstants.FUNCTION_NAME_CUD;
+import static io.siddhi.core.util.SiddhiConstants.METRIC_INFIX_AGGREGATIONS;
+import static io.siddhi.core.util.SiddhiConstants.METRIC_TYPE_FIND;
+import static io.siddhi.core.util.SiddhiConstants.METRIC_TYPE_INSERT;
+import static io.siddhi.core.util.SiddhiConstants.NAMESPACE_RDBMS;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_COLUMN;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_COLUMNS;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_CONDITION;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_FROM_CONDITION;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_INNER_QUERY;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_SELECTORS;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_TABLE_NAME;
+import static io.siddhi.core.util.SiddhiConstants.SQL_AND;
+import static io.siddhi.core.util.SiddhiConstants.SQL_AS;
+import static io.siddhi.core.util.SiddhiConstants.SQL_FROM;
+import static io.siddhi.core.util.SiddhiConstants.SQL_SELECT;
+import static io.siddhi.core.util.SiddhiConstants.SUB_SELECT_QUERY_REF_T1;
+import static io.siddhi.core.util.SiddhiConstants.SUB_SELECT_QUERY_REF_T2;
+import static io.siddhi.core.util.SiddhiConstants.TO_TIMESTAMP;
+
 
 /**
  * This is the parser class of incremental aggregation definition.
  */
 public class AggregationParser {
     private static final Logger log = Logger.getLogger(AggregationParser.class);
+    public static Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap = new HashMap<>();
 
     public static AggregationRuntime parse(AggregationDefinition aggregationDefinition,
                                            SiddhiAppContext siddhiAppContext,
@@ -402,6 +430,9 @@ public class AggregationParser {
                     aggregatorName, shouldUpdateTimestamp, timeZone, isPersistedAggregation,
                     incomingOutputStreamDefinition, isDistributed, shardId, isProcessingOnExternalTime, aggregationDefinition,
                     configManager, groupByVariableList);
+
+
+            aggregationDurationExecutorMap.put(aggregatorName, incrementalExecutorMap);
 
             isOptimisedLookup = isOptimisedLookup &&
                     aggregationTables.get(aggregationDurations.get(0)) instanceof QueryableProcessor;
@@ -1335,6 +1366,10 @@ public class AggregationParser {
         abstractStreamProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
         abstractStreamProcessor.setNextProcessor(new PersistedAggregationResultsProcessor(duration));
         return abstractStreamProcessor;
+    }
+
+    public static Map<String, Map<TimePeriod.Duration, Executor>> getAggregationDurationExecutorMap() {
+        return aggregationDurationExecutorMap;
     }
 
     public enum Database {
