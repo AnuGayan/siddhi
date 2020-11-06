@@ -55,6 +55,7 @@ import io.siddhi.core.query.selector.GroupByKeyGenerator;
 import io.siddhi.core.query.selector.attribute.aggregator.MaxAttributeAggregatorExecutor;
 import io.siddhi.core.query.selector.attribute.aggregator.SumAttributeAggregatorExecutor;
 import io.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
+import io.siddhi.core.query.selector.attribute.aggregator.incremental.MinIncrementalAttributeAggregator;
 import io.siddhi.core.table.Table;
 import io.siddhi.core.util.ExceptionUtil;
 import io.siddhi.core.util.Scheduler;
@@ -1220,11 +1221,25 @@ public class AggregationParser {
             } else if (expressionExecutor instanceof IncrementalAggregateBaseTimeFunctionExecutor) {
                 outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
             } else if (expressionExecutor instanceof MaxAttributeAggregatorExecutor) {
-                innerSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().
-                        replace(PLACEHOLDER_COLUMN, attributeList.get(i).getName()));
-                subSelectT2ColumnJoiner.add(attributeList.get(i).getName());
-                outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T2 + "." + attributeList.get(i).getName() +
-                        SQL_AS + attributeList.get(i).getName());
+                if (attributeList.get(i).getName().equals(AGG_LAST_TIMESTAMP_COL)) {
+                    innerSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().
+                            replace(PLACEHOLDER_COLUMN, attributeList.get(i).getName()));
+                    subSelectT2ColumnJoiner.add(attributeList.get(i).getName());
+                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T2 + "." + attributeList.get(i).getName() +
+                            SQL_AS + attributeList.get(i).getName());
+                } else {
+                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
+                            attributeList.get(i).getName());
+                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().replace(
+                            PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
+                            attributeList.get(i).getName());
+                }
+            }else if (expressionExecutor instanceof MinIncrementalAttributeAggregator){
+                outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
+                        attributeList.get(i).getName());
+                subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().replace(
+                        PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
+                        attributeList.get(i).getName());
             } else if (expressionExecutor instanceof ConstantExpressionExecutor) {
                 outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() +
                         SQL_AS + attributeList.get(i).getName());

@@ -22,6 +22,7 @@ import io.siddhi.core.aggregation.Executor;
 import io.siddhi.core.aggregation.IncrementalDataAggregator;
 import io.siddhi.core.aggregation.IncrementalExecutor;
 import io.siddhi.core.aggregation.OutOfOrderEventsDataAggregator;
+import io.siddhi.core.aggregation.persistedaggregation.PersistedIncrementalExecutor;
 import io.siddhi.core.event.ComplexEvent;
 import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.state.StateEvent;
@@ -361,6 +362,9 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
             incrementalDuration = TimePeriod.Duration.values()[i];
             //If the reduced granularity is not configured
             if (incrementalExecutorMap.containsKey(incrementalDuration)) {
+                if (incrementalExecutorMap.get(incrementalDuration) instanceof PersistedIncrementalExecutor) {
+                    return -1;
+                }
                 oldestEvent = ((IncrementalExecutor) incrementalExecutorMap.get(incrementalDuration)).
                         getAggregationStartTimestamp();
                 if (oldestEvent != -1) {

@@ -25,6 +25,7 @@ public class DBAggregationSelectFunctionTemplate {
     private String sumFunction;
     private String countFunction;
     private String maxFunction;
+    private String minFunction;
     private String timeConversionFunction;
 
 
@@ -58,5 +59,13 @@ public class DBAggregationSelectFunctionTemplate {
 
     public void setTimeConversionFunction(String timeConversionFunction) {
         this.timeConversionFunction = timeConversionFunction;
+    }
+
+    public String getMinFunction() {
+        return minFunction;
+    }
+
+    public void setMinFunction(String minFunction) {
+        this.minFunction = minFunction;
     }
 }
