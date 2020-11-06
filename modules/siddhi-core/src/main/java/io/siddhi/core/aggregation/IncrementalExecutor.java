@@ -120,9 +120,12 @@ public class IncrementalExecutor implements Executor {
             ExecutorState executorState = stateHolder.getState();
             try {
                 long timestamp = getTimestamp(streamEvent, executorState);
+                long startTime = executorState.startTimeOfAggregates;
                 executorState.startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
                         timestamp, duration, timeZone);
                 if (timestamp >= executorState.nextEmitTime) {
+                    LOG.info("Aggregation event dispatching for duration " + duration + " from " + startTime + " to " +
+                            timestamp);
                     executorState.nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(
                             timestamp, duration, timeZone);
                     dispatchAggregateEvents(executorState.startTimeOfAggregates);
@@ -210,6 +213,8 @@ public class IncrementalExecutor implements Executor {
             for (StreamEvent event : tableStreamEventMap.values()) {
                 tableEventChunk.add(event);
             }
+            LOG.info("Aggregation data is persisting to database table " + table.getTableDefinition().getId() + " event timestamp " +
+                    "" + eventChunk.getFirst().getTimestamp());
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             }
@@ -228,7 +233,7 @@ public class IncrementalExecutor implements Executor {
             }
             if (waitUntillprocessFinish) {
                 try {
-                    while (!isProcessFinished.get()){
+                    while (!isProcessFinished.get()) {
                         Thread.sleep(1000);
                     }
                 } catch (InterruptedException e) {
