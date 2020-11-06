@@ -1227,6 +1227,7 @@ public class AggregationParser {
                             replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
                                     AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
                             duration.name().substring(0, duration.name().length() - 1)));
+                    subSelectT1ColumnJoiner.add(AGG_EXTERNAL_TIMESTAMP_COL);
                 }
                 outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
             } else if (expressionExecutor instanceof MaxAttributeAggregatorExecutor) {
