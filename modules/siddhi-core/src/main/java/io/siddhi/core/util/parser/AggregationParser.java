@@ -1237,9 +1237,6 @@ public class AggregationParser {
             i++;
         }
 
-        groupByClause = dbAggregationSelectQueryTemplate.getGroupByClause().replace(PLACEHOLDER_COLUMNS,
-                groupByQueryBuilder.toString());
-
         if (isProcessingOnExternalTime) {
             filterQueryBuilder.append(" (").append(AGG_EXTERNAL_TIMESTAMP_COL).append(" >= ?").append(" AND ")
                     .append(AGG_EXTERNAL_TIMESTAMP_COL).append(" < ? ").append(") ");
@@ -1250,7 +1247,11 @@ public class AggregationParser {
         if (isDistributed) {
             filterQueryBuilder.append(" AND ").append(AGG_SHARD_ID_COL).append(" = '").append(shardID).append("' ");
             subSelectT1ColumnJoiner.add(AGG_SHARD_ID_COL);
+            groupByQueryBuilder.add(AGG_SHARD_ID_COL);
         }
+
+        groupByClause = dbAggregationSelectQueryTemplate.getGroupByClause().replace(PLACEHOLDER_COLUMNS,
+                groupByQueryBuilder.toString());
 
         innerWhereFilterClause = dbAggregationSelectQueryTemplate.getWhereClause().
                 replace(PLACEHOLDER_CONDITION, filterQueryBuilder.toString());

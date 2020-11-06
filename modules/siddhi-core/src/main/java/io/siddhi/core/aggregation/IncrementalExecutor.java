@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -54,6 +55,7 @@ public class IncrementalExecutor implements Executor {
     private final ExpressionExecutor timestampExpressionExecutor;
     private final StateHolder<ExecutorState> stateHolder;
     private final String siddhiAppName;
+    private final Lock lock = new ReentrantLock();
     boolean waitUntillprocessFinish = false;
     private TimePeriod.Duration duration;
     private Table table;
@@ -66,6 +68,7 @@ public class IncrementalExecutor implements Executor {
     private ExecutorService executorService;
     private String timeZone;
     private BaseIncrementalValueStore baseIncrementalValueStore;
+
 
     public IncrementalExecutor(String aggregatorName, TimePeriod.Duration duration,
                                List<ExpressionExecutor> processExpressionExecutors,
@@ -195,6 +198,7 @@ public class IncrementalExecutor implements Executor {
     }
 
     private void dispatchEvent(long startTimeOfNewAggregates, BaseIncrementalValueStore aBaseIncrementalValueStore) {
+        AtomicBoolean isProcessFinished = new AtomicBoolean(false);
         if (aBaseIncrementalValueStore.isProcessed()) {
             Map<String, StreamEvent> streamEventMap = aBaseIncrementalValueStore.getGroupedByEvents();
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>();
@@ -209,26 +213,24 @@ public class IncrementalExecutor implements Executor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Event dispatched by " + this.duration + " incremental executor: " + eventChunk.toString());
             }
-            Lock lock = new ReentrantLock();
             if (isProcessingExecutor) {
                 try {
-                    if (lock.tryLock()) {
-                        executorService.execute(() -> {
-                            table.addEvents(tableEventChunk, streamEventMap.size());
-                        });
-                    }
+                    executorService.execute(() -> {
+                        table.addEvents(tableEventChunk, streamEventMap.size());
+                        isProcessFinished.set(true);
+                    });
                 } catch (Throwable t) {
                     LOG.error("Exception occurred at siddhi app '" + this.siddhiAppName +
                             "' when performing table writes of aggregation '" + this.aggregatorName +
                             "' for duration '" + this.duration + "'. This should be investigated as this " +
                             "can cause accuracy loss.", t);
-                } finally {
-                    lock.unlock();
                 }
             }
             if (waitUntillprocessFinish) {
                 try {
-                    lock.wait();
+                    while (!isProcessFinished.get()){
+                        Thread.sleep(1000);
+                    }
                 } catch (InterruptedException e) {
                     LOG.error("Error occurred while waiting until table update task finishes for duration " +
                             duration, e);
