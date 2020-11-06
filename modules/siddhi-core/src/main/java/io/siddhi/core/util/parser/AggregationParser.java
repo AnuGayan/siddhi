@@ -1237,7 +1237,7 @@ public class AggregationParser {
             }else if (expressionExecutor instanceof MinIncrementalAttributeAggregator){
                 outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
                         attributeList.get(i).getName());
-                subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().replace(
+                subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMinFunction().replace(
                         PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
                         attributeList.get(i).getName());
             } else if (expressionExecutor instanceof ConstantExpressionExecutor) {

@@ -15,7 +15,7 @@
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
-            <maxFunction>MIN({{COLUMN}})</maxFunction>
+            <minFunction>MIN({{COLUMN}})</minFunction>
         </selectQueryFunctions>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -44,7 +44,7 @@
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
-            <maxFunction>MIN({{COLUMN}})</maxFunction>
+            <minFunction>MIN({{COLUMN}})</minFunction>
             <timeConversionFunction>UNIX_TIMESTAMP(from_unixtime({{COLUMN}},{{TIME_FORMAT}}))</timeConversionFunction>
         </selectQueryFunctions>
         <stringSize>254</stringSize>
@@ -75,7 +75,7 @@
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
-            <maxFunction>MIN({{COLUMN}})</maxFunction>
+            <minFunction>MIN({{COLUMN}})</minFunction>
             <timeConversionFunction>(to_date(trunc((to_date('19700101', 'YYYYMMDD') + ( 1 / 24 / 60 / 60 / 1000) *
                 {{TIME_STAMP}}), '{{DURATION}}'), 'YYYY/MM/DD') - to_date('19700101', 'YYYYMMDD')) * 86400000
             </timeConversionFunction>
@@ -109,7 +109,7 @@
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
-            <maxFunction>MIN({{COLUMN}})</maxFunction>
+            <minFunction>MIN({{COLUMN}})</minFunction>
         </selectQueryFunctions>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -139,7 +139,7 @@
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
-            <maxFunction>MIN({{COLUMN}})</maxFunction>
+            <minFunction>MIN({{COLUMN}})</minFunction>
         </selectQueryFunctions>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
@@ -168,7 +168,7 @@
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
-            <maxFunction>MIN({{COLUMN}})</maxFunction>
+            <minFunction>MIN({{COLUMN}})</minFunction>
         </selectQueryFunctions>
         <keyExplicitNotNull>true</keyExplicitNotNull>
         <stringSize>254</stringSize>
@@ -198,7 +198,7 @@
             <sumFunction>SUM({{COLUMN}})</sumFunction>
             <countFunction>COUNT({{COLUMN}})</countFunction>
             <maxFunction>MAX({{COLUMN}})</maxFunction>
-            <maxFunction>MIN({{COLUMN}})</maxFunction>
+            <minFunction>MIN({{COLUMN}})</minFunction>
         </selectQueryFunctions>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
