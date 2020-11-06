@@ -53,6 +53,7 @@ import io.siddhi.core.query.processor.stream.StreamProcessor;
 import io.siddhi.core.query.processor.stream.window.QueryableProcessor;
 import io.siddhi.core.query.selector.GroupByKeyGenerator;
 import io.siddhi.core.query.selector.attribute.aggregator.MaxAttributeAggregatorExecutor;
+import io.siddhi.core.query.selector.attribute.aggregator.MinAttributeAggregatorExecutor;
 import io.siddhi.core.query.selector.attribute.aggregator.SumAttributeAggregatorExecutor;
 import io.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
 import io.siddhi.core.query.selector.attribute.aggregator.incremental.MinIncrementalAttributeAggregator;
@@ -1234,7 +1235,7 @@ public class AggregationParser {
                             PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
                             attributeList.get(i).getName());
                 }
-            }else if (expressionExecutor instanceof MinIncrementalAttributeAggregator){
+            }else if (expressionExecutor instanceof MinAttributeAggregatorExecutor){
                 outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
                         attributeList.get(i).getName());
                 subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMinFunction().replace(
