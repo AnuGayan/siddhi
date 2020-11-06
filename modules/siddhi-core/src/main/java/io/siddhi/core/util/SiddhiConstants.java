@@ -156,6 +156,7 @@ public final class SiddhiConstants {
     public static final String PLACEHOLDER_TABLE_NAME = "{{TABLE_NAME}}";
     public static final String PLACEHOLDER_COLUMNS = "{{COLUMNS}}";
     public static final String PLACEHOLDER_COLUMN = "{{COLUMN}}";
+    public static final String PLACEHOLDER_DURATION = "{{DURATION}}";
     public static final String PLACEHOLDER_QUERY = "{{QUERY}}";
     public static final String PLACEHOLDER_SELECTORS = "{{SELECTORS}}";
     public static final String PLACEHOLDER_CONDITION = "{{CONDITION}}";

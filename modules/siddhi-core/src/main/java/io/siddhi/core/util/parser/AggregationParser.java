@@ -56,7 +56,6 @@ import io.siddhi.core.query.selector.attribute.aggregator.MaxAttributeAggregator
 import io.siddhi.core.query.selector.attribute.aggregator.MinAttributeAggregatorExecutor;
 import io.siddhi.core.query.selector.attribute.aggregator.SumAttributeAggregatorExecutor;
 import io.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
-import io.siddhi.core.query.selector.attribute.aggregator.incremental.MinIncrementalAttributeAggregator;
 import io.siddhi.core.table.Table;
 import io.siddhi.core.util.ExceptionUtil;
 import io.siddhi.core.util.Scheduler;
@@ -122,6 +121,7 @@ import static io.siddhi.core.util.SiddhiConstants.NAMESPACE_RDBMS;
 import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_COLUMN;
 import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_COLUMNS;
 import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_CONDITION;
+import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_DURATION;
 import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_FROM_CONDITION;
 import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_INNER_QUERY;
 import static io.siddhi.core.util.SiddhiConstants.PLACEHOLDER_SELECTORS;
@@ -1094,7 +1094,8 @@ public class AggregationParser {
                                     get(aggregationDurations.get(i)), dbAggregationQueryConfigurationEntry,
                             incomingOutputStreamDefinition, isDistributed, shardID, isProcessingOnExternalTime,
                             aggregationTables.get(aggregationDurations.get(i)),
-                            aggregationTables.get(aggregationDurations.get(i - 1)), groupByVariableList);
+                            aggregationTables.get(aggregationDurations.get(i - 1)), groupByVariableList,
+                            aggregationDurations.get(i));
                     StringConstant selectQuery = new StringConstant(databaseSelectQuery);
                     ConstantExpressionExecutor selectExecutor = new ConstantExpressionExecutor(selectQuery.getValue(),
                             Attribute.Type.STRING);
@@ -1153,7 +1154,8 @@ public class AggregationParser {
                                                 StreamDefinition incomingOutputStreamDefinition,
                                                 boolean isDistributed, String shardID,
                                                 boolean isProcessingOnExternalTime, Table aggregationTable,
-                                                Table parentAggregationTable, List<Variable> groupByVariableList) {
+                                                Table parentAggregationTable, List<Variable> groupByVariableList,
+                                                TimePeriod.Duration duration) {
 
         DBAggregationSelectFunctionTemplate dbAggregationSelectFunctionTemplates = dbAggregationQueryConfigurationEntry.
                 getRdbmsSelectFunctionTemplate();
@@ -1220,6 +1222,11 @@ public class AggregationParser {
                     }
                 }
             } else if (expressionExecutor instanceof IncrementalAggregateBaseTimeFunctionExecutor) {
+                if (attributeList.get(i).getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
+                    outerSelectColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
+                            replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                            duration.name().substring(0, duration.name().length() - 1)));
+                }
                 outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
             } else if (expressionExecutor instanceof MaxAttributeAggregatorExecutor) {
                 if (attributeList.get(i).getName().equals(AGG_LAST_TIMESTAMP_COL)) {
@@ -1235,7 +1242,7 @@ public class AggregationParser {
                             PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
                             attributeList.get(i).getName());
                 }
-            }else if (expressionExecutor instanceof MinAttributeAggregatorExecutor){
+            } else if (expressionExecutor instanceof MinAttributeAggregatorExecutor) {
                 outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
                         attributeList.get(i).getName());
                 subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMinFunction().replace(
