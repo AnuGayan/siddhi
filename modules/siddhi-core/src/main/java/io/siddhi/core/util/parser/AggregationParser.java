@@ -1261,8 +1261,9 @@ public class AggregationParser {
         }
 
         if (isProcessingOnExternalTime) {
-            filterQueryBuilder.append(" (").append(AGG_EXTERNAL_TIMESTAMP_COL).append(" >= ?").append(" AND ")
-                    .append(AGG_EXTERNAL_TIMESTAMP_COL).append(" < ? ").append(") ");
+            filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
+                    .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");
+            groupByQueryBuilder.add(AGG_EXTERNAL_TIMESTAMP_COL);
         } else {
             filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
                     .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");
