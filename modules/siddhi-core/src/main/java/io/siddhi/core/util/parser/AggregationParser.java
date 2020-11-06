@@ -1205,8 +1205,7 @@ public class AggregationParser {
             if (expressionExecutor instanceof VariableExpressionExecutor) {
                 VariableExpressionExecutor variableExpressionExecutor = (VariableExpressionExecutor) expressionExecutor;
                 if (variableExpressionExecutor.getAttribute().getName()
-                        .equals(AGG_START_TIMESTAMP_COL) ||
-                        variableExpressionExecutor.getAttribute().getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
+                        .equals(AGG_START_TIMESTAMP_COL)) {
                     outerSelectColumnJoiner.add(" ? " + SQL_AS + variableExpressionExecutor.getAttribute().getName());
                 } else {
                     subSelectT2ColumnJoiner.add(variableExpressionExecutor.getAttribute().getName());
@@ -1226,7 +1225,7 @@ public class AggregationParser {
                     outerSelectColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
                             replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
                                     AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
-                            duration.name().substring(0, duration.name().length() - 1)));
+                            duration.name().substring(0, duration.name().length() - 1)) + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
                     subSelectT1ColumnJoiner.add(AGG_EXTERNAL_TIMESTAMP_COL);
                 }
                 outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
