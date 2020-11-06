@@ -1224,7 +1224,8 @@ public class AggregationParser {
             } else if (expressionExecutor instanceof IncrementalAggregateBaseTimeFunctionExecutor) {
                 if (attributeList.get(i).getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
                     outerSelectColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
-                            replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                            replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
+                                    AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
                             duration.name().substring(0, duration.name().length() - 1)));
                 }
                 outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
