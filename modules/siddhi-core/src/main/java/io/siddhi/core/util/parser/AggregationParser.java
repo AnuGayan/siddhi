@@ -1286,8 +1286,7 @@ public class AggregationParser {
             filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
                     .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");
             groupByQueryBuilder.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
-                    replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
-                            AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                    replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
                     dbAggregationTimeConversionDurationMapping.getDurationMapping(duration)));
         } else {
             filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
