@@ -1207,7 +1207,7 @@ public class AggregationParser {
                 if (variableExpressionExecutor.getAttribute().getName()
                         .equals(AGG_START_TIMESTAMP_COL)) {
                     outerSelectColumnJoiner.add(" ? " + SQL_AS + variableExpressionExecutor.getAttribute().getName());
-                } else {
+                } else if (!variableExpressionExecutor.getAttribute().getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
                     subSelectT2ColumnJoiner.add(variableExpressionExecutor.getAttribute().getName());
                     if (groupByColumnNames.contains(variableExpressionExecutor.getAttribute().getName())) {
                         outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." +
@@ -1227,8 +1227,9 @@ public class AggregationParser {
                                     AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
                             duration.name().substring(0, duration.name().length() - 1)) + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
                     subSelectT1ColumnJoiner.add(AGG_EXTERNAL_TIMESTAMP_COL);
+                } else {
+                    outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
                 }
-                outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
             } else if (expressionExecutor instanceof MaxAttributeAggregatorExecutor) {
                 if (attributeList.get(i).getName().equals(AGG_LAST_TIMESTAMP_COL)) {
                     innerSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().
@@ -1305,8 +1306,8 @@ public class AggregationParser {
 
     private static Map<Attribute, int[]> generateCUDInputStreamAttributes() {
         Map<Attribute, int[]> cudInputStreamAttributeList = new LinkedHashMap<>();
-        cudInputStreamAttributeList.put(new Attribute(FROM_TIMESTAMP, Attribute.Type.LONG), new int[]{0, 1, 2, 4});
-        cudInputStreamAttributeList.put(new Attribute(TO_TIMESTAMP, Attribute.Type.LONG), new int[]{3, 5});
+        cudInputStreamAttributeList.put(new Attribute(FROM_TIMESTAMP, Attribute.Type.LONG), new int[]{0, 1, 3});
+        cudInputStreamAttributeList.put(new Attribute(TO_TIMESTAMP, Attribute.Type.LONG), new int[]{2, 4});
         return cudInputStreamAttributeList;
     }
 
