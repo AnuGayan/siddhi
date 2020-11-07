@@ -1238,13 +1238,11 @@ public class AggregationParser {
                     outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + SQL_AS +
                             AGG_EXTERNAL_TIMESTAMP_COL);
                     subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
-                            replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
-                                    AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                            replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
                             dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
                             + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
                     subSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
-                            replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
-                                    AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                            replace(PLACEHOLDER_COLUMN,  AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
                             dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
                             + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
                     onConditionBuilder.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + EQUALS +
