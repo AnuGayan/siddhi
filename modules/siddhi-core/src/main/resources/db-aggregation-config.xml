@@ -47,6 +47,11 @@
             <minFunction>MIN({{COLUMN}})</minFunction>
             <timeConversionFunction>UNIX_TIMESTAMP(from_unixtime({{COLUMN}},{{TIME_FORMAT}}))</timeConversionFunction>
         </selectQueryFunctions>
+        <timeConversionDurationMapping>
+            <day>ddd</day>
+            <month>month</month>
+            <year>year</year>
+        </timeConversionDurationMapping>
         <stringSize>254</stringSize>
         <batchEnable>true</batchEnable>
         <batchSize>1000</batchSize>
@@ -80,6 +85,11 @@
                 {{COLUMN}}), '{{DURATION}}'), 'YYYY/MM/DD') - to_date('19700101', 'YYYYMMDD')) * 86400000
             </timeConversionFunction>
         </selectQueryFunctions>
+        <timeConversionDurationMapping>
+            <day>ddd</day>
+            <month>month</month>
+            <year>year</year>
+        </timeConversionDurationMapping>
         <stringSize>254</stringSize>
         <fieldSizeLimit>2000</fieldSizeLimit>
         <batchEnable>false</batchEnable>

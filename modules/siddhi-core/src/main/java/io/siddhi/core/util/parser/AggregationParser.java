@@ -29,6 +29,7 @@ import io.siddhi.core.aggregation.persistedaggregation.config.DBAggregationQuery
 import io.siddhi.core.aggregation.persistedaggregation.config.DBAggregationQueryUtil;
 import io.siddhi.core.aggregation.persistedaggregation.config.DBAggregationSelectFunctionTemplate;
 import io.siddhi.core.aggregation.persistedaggregation.config.DBAggregationSelectQueryTemplate;
+import io.siddhi.core.aggregation.persistedaggregation.config.DBAggregationTimeConversionDurationMapping;
 import io.siddhi.core.aggregation.persistedaggregation.config.PersistedAggregationResultsProcessor;
 import io.siddhi.core.config.SiddhiAppContext;
 import io.siddhi.core.config.SiddhiContext;
@@ -109,6 +110,7 @@ import static io.siddhi.core.util.SiddhiConstants.AGG_EXTERNAL_TIMESTAMP_COL;
 import static io.siddhi.core.util.SiddhiConstants.AGG_LAST_TIMESTAMP_COL;
 import static io.siddhi.core.util.SiddhiConstants.AGG_SHARD_ID_COL;
 import static io.siddhi.core.util.SiddhiConstants.AGG_START_TIMESTAMP_COL;
+import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_ELEMENT_ENABLE;
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_PARTITION_BY_ID;
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_PERSISTED_AGGREGATION;
 import static io.siddhi.core.util.SiddhiConstants.EQUALS;
@@ -172,10 +174,19 @@ public class AggregationParser {
         Annotation aggregationProperties = AnnotationHelper.getAnnotation(ANNOTATION_PERSISTED_AGGREGATION,
                 aggregationDefinition.getAnnotations());
         if (aggregationProperties != null) {
-            String persistedAggregationMode = aggregationProperties.getElement("enabled");
+            String persistedAggregationMode = aggregationProperties.getElement(ANNOTATION_ELEMENT_ENABLE);
             isPersistedAggregation = persistedAggregationMode == null || Boolean.parseBoolean(persistedAggregationMode);
         }
 
+        if (isPersistedAggregation) {
+            aggregationDefinition.getSelector().getSelectionList().stream().forEach(outputAttribute -> {
+                if (outputAttribute.getExpression() instanceof AttributeFunction &&
+                        ((AttributeFunction) outputAttribute.getExpression()).getName().equals("distinctCount")) {
+                    throw new SiddhiAppCreationException("Aggregation function 'distinctCount' does not supported " +
+                            "with persisted aggregation type please use default incremental aggregation");
+                }
+            });
+        }
         if (isDebugEnabled) {
             log.debug("Aggregation mode is defined as " + (isPersistedAggregation ? "persisted" : "inMemory") +
                     " for aggregation " + aggregatorName);
@@ -253,7 +264,7 @@ public class AggregationParser {
             Annotation partitionById = AnnotationHelper.getAnnotation(ANNOTATION_PARTITION_BY_ID,
                     aggregationDefinition.getAnnotations());
             if (partitionById != null) {
-                String enableElement = partitionById.getElement("enable");
+                String enableElement = partitionById.getElement(ANNOTATION_ELEMENT_ENABLE);
                 enablePartitioning = enableElement == null || Boolean.parseBoolean(enableElement);
             }
 
@@ -565,7 +576,7 @@ public class AggregationParser {
                 } else {
                     incrementalExecutor = new PersistedIncrementalExecutor(aggregatorName, duration,
                             processExpressionExecutorsMap.get(duration),
-                            child, siddhiQueryContext, generateCUDMetaStreamEvent(), timeZone,
+                            child, siddhiQueryContext, generateCUDMetaStreamEvent(isProcessingOnExternalTime), timeZone,
                             cudProcessors.get(duration));
                 }
                 incrementalExecutorMap.put(duration, incrementalExecutor);
@@ -1081,7 +1092,7 @@ public class AggregationParser {
         StringConstant datasource = new StringConstant(datasourceName);
         ConstantExpressionExecutor datasourceExecutor = new ConstantExpressionExecutor(datasource.getValue(),
                 Attribute.Type.STRING);
-        Expression[] streamHandler = new Expression[8];
+        Expression[] streamHandler = new Expression[7];
         try {
             DBAggregationQueryConfigurationEntry dbAggregationQueryConfigurationEntry = DBAggregationQueryUtil.
                     lookupCurrentQueryConfigurationEntry(databaseType);
@@ -1089,7 +1100,7 @@ public class AggregationParser {
             for (int i = aggregationDurations.size() - 1; i > 0; i--) {
                 if (aggregationDurations.get(i).ordinal() >= 3) {
                     log.debug(" Initializing cudProcessors for durations ");
-                    ExpressionExecutor[] cudStreamProcessorInputVariables = new ExpressionExecutor[8];
+                    ExpressionExecutor[] cudStreamProcessorInputVariables = new ExpressionExecutor[7];
                     String databaseSelectQuery = generateDatabaseQuery(processExpressionExecutorsMap.
                                     get(aggregationDurations.get(i)), dbAggregationQueryConfigurationEntry,
                             incomingOutputStreamDefinition, isDistributed, shardID, isProcessingOnExternalTime,
@@ -1104,7 +1115,7 @@ public class AggregationParser {
                     cudStreamProcessorInputVariables[1] = selectExecutor;
                     streamHandler[0] = datasource;
                     streamHandler[1] = selectQuery;
-                    MetaStreamEvent metaStreamEvent = generateCUDMetaStreamEvent();
+                    MetaStreamEvent metaStreamEvent = generateCUDMetaStreamEvent(isProcessingOnExternalTime);
                     StreamDefinition outputStream = new StreamDefinition();
                     VariableExpressionExecutor variableExpressionExecutor;
                     int j = 0;
@@ -1135,7 +1146,7 @@ public class AggregationParser {
         }
     }
 
-    private static MetaStreamEvent generateCUDMetaStreamEvent() {
+    private static MetaStreamEvent generateCUDMetaStreamEvent(boolean isProcessingOnExternalTime) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         Map<Attribute, int[]> cudInputStreamAttributesList = generateCUDInputStreamAttributes();
         StreamDefinition inputDefinition = new StreamDefinition();
@@ -1161,6 +1172,8 @@ public class AggregationParser {
                 getRdbmsSelectFunctionTemplate();
         DBAggregationSelectQueryTemplate dbAggregationSelectQueryTemplate = dbAggregationQueryConfigurationEntry.
                 getRdbmsSelectQueryTemplate();
+        DBAggregationTimeConversionDurationMapping dbAggregationTimeConversionDurationMapping =
+                dbAggregationQueryConfigurationEntry.getDbAggregationTimeConversionDurationMapping();
         List<Attribute> attributeList = incomingOutputStreamDefinition.getAttributeList();
         List<String> groupByColumnNames = new ArrayList<>();
 
@@ -1222,11 +1235,20 @@ public class AggregationParser {
                 }
             } else if (expressionExecutor instanceof IncrementalAggregateBaseTimeFunctionExecutor) {
                 if (attributeList.get(i).getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
-                    outerSelectColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
+                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + SQL_AS +
+                            AGG_EXTERNAL_TIMESTAMP_COL);
+                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
                             replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
                                     AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
-                            duration.name().substring(0, duration.name().length() - 1)) + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
-                    subSelectT1ColumnJoiner.add(AGG_EXTERNAL_TIMESTAMP_COL);
+                            dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
+                            + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
+                    subSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
+                            replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
+                                    AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                            dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
+                            + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
+                    onConditionBuilder.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + EQUALS +
+                            SUB_SELECT_QUERY_REF_T2 + "." + AGG_EXTERNAL_TIMESTAMP_COL);
                 } else {
                     outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
                 }
@@ -1265,7 +1287,10 @@ public class AggregationParser {
         if (isProcessingOnExternalTime) {
             filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
                     .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");
-            groupByQueryBuilder.add(AGG_EXTERNAL_TIMESTAMP_COL);
+            groupByQueryBuilder.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
+                    replace(PLACEHOLDER_COLUMN, SUB_SELECT_QUERY_REF_T1 + "." +
+                            AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                    dbAggregationTimeConversionDurationMapping.getDurationMapping(duration)));
         } else {
             filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
                     .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");

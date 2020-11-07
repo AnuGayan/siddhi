@@ -37,6 +37,7 @@ public class DBAggregationQueryConfigurationEntry {
     private RDBMSTypeMapping rdbmsTypeMapping;
     private DBAggregationSelectQueryTemplate dbAggregationSelectQueryTemplate;
     private DBAggregationSelectFunctionTemplate dbAggregationSelectFunctionTemplate;
+    private DBAggregationTimeConversionDurationMapping dbAggregationTimeConversionDurationMapping;
     private int batchSize;
     private boolean batchEnable = false;
     private String collation;
@@ -156,6 +157,15 @@ public class DBAggregationQueryConfigurationEntry {
     public void setRdbmsSelectFunctionTemplate(DBAggregationSelectFunctionTemplate
                                                        dbAggregationSelectFunctionTemplate) {
         this.dbAggregationSelectFunctionTemplate = dbAggregationSelectFunctionTemplate;
+    }
+
+    @XmlElement(name = "timeConversionDurationMapping")
+    public DBAggregationTimeConversionDurationMapping getDbAggregationTimeConversionDurationMapping() {
+        return dbAggregationTimeConversionDurationMapping;
+    }
+
+    public void setDbAggregationTimeConversionDurationMapping(DBAggregationTimeConversionDurationMapping dbAggregationTimeConversionDurationMapping) {
+        this.dbAggregationTimeConversionDurationMapping = dbAggregationTimeConversionDurationMapping;
     }
 }
 

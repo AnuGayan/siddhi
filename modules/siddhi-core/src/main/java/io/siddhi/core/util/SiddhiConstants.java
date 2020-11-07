@@ -31,6 +31,8 @@ public final class SiddhiConstants {
     public static final String NAMESPACE_SINK = "sink";
     public static final String NAMESPACE_SINK_MAPPER = "sinkMapper";
 
+    public static final String NAMESPACE_DISTINCT_COUNT_AGGREGATION_FUNCTION = "distinctCount";
+
     public static final String NAMESPACE_DISTRIBUTION_STRATEGY = "distributionStrategy";
     public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";
 
