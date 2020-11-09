@@ -112,7 +112,7 @@ public class AggregationRuntime implements MemoryCalculable {
 
     private boolean isFirstEventArrived;
     private String timeZone;
-    private Map<String, Map<TimePeriod.Duration,Executor>> aggregationDurationExecutorMap;
+    private Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition, boolean isProcessingOnExternalTime,
                               boolean isDistributed, List<TimePeriod.Duration> aggregationDurations,
@@ -161,7 +161,7 @@ public class AggregationRuntime implements MemoryCalculable {
         this.latencyTrackerFind = latencyTrackerFind;
         this.throughputTrackerFind = throughputTrackerFind;
         this.aggregationDurationExecutorMap = new HashMap<>();
-        this.aggregationDurationExecutorMap.put(aggregationDefinition.getId(),incrementalExecutorMap);
+        this.aggregationDurationExecutorMap.put(aggregationDefinition.getId(), incrementalExecutorMap);
 
     }
 
@@ -725,7 +725,8 @@ public class AggregationRuntime implements MemoryCalculable {
         return aggregationDurationExecutorMap;
     }
 
-    public void setAggregationDurationExecutorMap(Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap) {
+    public void setAggregationDurationExecutorMap(Map<String,
+            Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap) {
         this.aggregationDurationExecutorMap = aggregationDurationExecutorMap;
     }
 }

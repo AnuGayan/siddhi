@@ -164,7 +164,8 @@ public class DBAggregationQueryConfigurationEntry {
         return dbAggregationTimeConversionDurationMapping;
     }
 
-    public void setDbAggregationTimeConversionDurationMapping(DBAggregationTimeConversionDurationMapping dbAggregationTimeConversionDurationMapping) {
+    public void setDbAggregationTimeConversionDurationMapping(
+            DBAggregationTimeConversionDurationMapping dbAggregationTimeConversionDurationMapping) {
         this.dbAggregationTimeConversionDurationMapping = dbAggregationTimeConversionDurationMapping;
     }
 }

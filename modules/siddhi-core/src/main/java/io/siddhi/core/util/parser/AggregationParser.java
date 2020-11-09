@@ -132,6 +132,7 @@ import static io.siddhi.core.util.SiddhiConstants.SQL_AND;
 import static io.siddhi.core.util.SiddhiConstants.SQL_AS;
 import static io.siddhi.core.util.SiddhiConstants.SQL_FROM;
 import static io.siddhi.core.util.SiddhiConstants.SQL_SELECT;
+import static io.siddhi.core.util.SiddhiConstants.SQL_WHERE;
 import static io.siddhi.core.util.SiddhiConstants.SUB_SELECT_QUERY_REF_T1;
 import static io.siddhi.core.util.SiddhiConstants.SUB_SELECT_QUERY_REF_T2;
 import static io.siddhi.core.util.SiddhiConstants.TO_TIMESTAMP;
@@ -142,7 +143,8 @@ import static io.siddhi.core.util.SiddhiConstants.TO_TIMESTAMP;
  */
 public class AggregationParser {
     private static final Logger log = Logger.getLogger(AggregationParser.class);
-    public static Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap = new HashMap<>();
+    //todo remove this after testing
+    private static final Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap = new HashMap<>();
 
     public static AggregationRuntime parse(AggregationDefinition aggregationDefinition,
                                            SiddhiAppContext siddhiAppContext,
@@ -1083,7 +1085,7 @@ public class AggregationParser {
             throw new SiddhiAppCreationException("Datasource configuration must be provided inorder to use persisted " +
                     "aggregation mode");
         }
-        Database databaseType = getDatabaseType(configManager, aggregationDefinition, datasourceName);
+        Database databaseType = getDatabaseType(configManager, datasourceName);
 
         SiddhiAppContext cudSiddhiAppContext = new SiddhiAppContext();
         SiddhiContext context = new SiddhiContext();
@@ -1092,7 +1094,13 @@ public class AggregationParser {
         StringConstant datasource = new StringConstant(datasourceName);
         ConstantExpressionExecutor datasourceExecutor = new ConstantExpressionExecutor(datasource.getValue(),
                 Attribute.Type.STRING);
-        Expression[] streamHandler = new Expression[7];
+        Expression[] streamHandler;
+        ExpressionExecutor[] cudStreamProcessorInputVariables;
+        if (isProcessingOnExternalTime) {
+            streamHandler = new Expression[7];
+        } else {
+            streamHandler = new Expression[5];
+        }
         try {
             DBAggregationQueryConfigurationEntry dbAggregationQueryConfigurationEntry = DBAggregationQueryUtil.
                     lookupCurrentQueryConfigurationEntry(databaseType);
@@ -1100,7 +1108,6 @@ public class AggregationParser {
             for (int i = aggregationDurations.size() - 1; i > 0; i--) {
                 if (aggregationDurations.get(i).ordinal() >= 3) {
                     log.debug(" Initializing cudProcessors for durations ");
-                    ExpressionExecutor[] cudStreamProcessorInputVariables = new ExpressionExecutor[7];
                     String databaseSelectQuery = generateDatabaseQuery(processExpressionExecutorsMap.
                                     get(aggregationDurations.get(i)), dbAggregationQueryConfigurationEntry,
                             incomingOutputStreamDefinition, isDistributed, shardID, isProcessingOnExternalTime,
@@ -1110,7 +1117,13 @@ public class AggregationParser {
                     StringConstant selectQuery = new StringConstant(databaseSelectQuery);
                     ConstantExpressionExecutor selectExecutor = new ConstantExpressionExecutor(selectQuery.getValue(),
                             Attribute.Type.STRING);
-                    Map<Attribute, int[]> cudInputStreamAttributesMap = generateCUDInputStreamAttributes();
+                    Map<Attribute, int[]> cudInputStreamAttributesMap =
+                            generateCUDInputStreamAttributes(isProcessingOnExternalTime);
+                    if (isProcessingOnExternalTime) {
+                        cudStreamProcessorInputVariables = new ExpressionExecutor[7];
+                    } else {
+                        cudStreamProcessorInputVariables = new ExpressionExecutor[5];
+                    }
                     cudStreamProcessorInputVariables[0] = datasourceExecutor;
                     cudStreamProcessorInputVariables[1] = selectExecutor;
                     streamHandler[0] = datasource;
@@ -1148,7 +1161,8 @@ public class AggregationParser {
 
     private static MetaStreamEvent generateCUDMetaStreamEvent(boolean isProcessingOnExternalTime) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        Map<Attribute, int[]> cudInputStreamAttributesList = generateCUDInputStreamAttributes();
+        Map<Attribute, int[]> cudInputStreamAttributesList =
+                generateCUDInputStreamAttributes(isProcessingOnExternalTime);
         StreamDefinition inputDefinition = new StreamDefinition();
         for (Attribute attribute : cudInputStreamAttributesList.keySet()) {
             metaStreamEvent.addData(attribute);
@@ -1200,141 +1214,178 @@ public class AggregationParser {
         StringJoiner subQueryT2 = new StringJoiner(" ");
 
         attributeList.stream().forEach(attribute -> insertIntoColumns.add(attribute.getName()));
-
-        groupByVariableList.stream().forEach(variable -> {
-            groupByColumnNames.add(variable.getAttributeName());
-            groupByQueryBuilder.add(variable.getAttributeName());
-            onConditionBuilder.add(SUB_SELECT_QUERY_REF_T1 + "." + variable.getAttributeName() +
-                    EQUALS + SUB_SELECT_QUERY_REF_T2 + "." + variable.getAttributeName());
-        });
-
+        int i = 0;
         insertIntoQueryBuilder.append(dbAggregationSelectQueryTemplate.getRecordInsertQuery().
                 replace(PLACEHOLDER_TABLE_NAME, aggregationTable.getTableDefinition().getId()).
                 replace(PLACEHOLDER_COLUMNS, insertIntoColumns.toString()));
 
-        int i = 0;
-        for (ExpressionExecutor expressionExecutor : expressionExecutors) {
+        filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
+                .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");
 
-            if (expressionExecutor instanceof VariableExpressionExecutor) {
-                VariableExpressionExecutor variableExpressionExecutor = (VariableExpressionExecutor) expressionExecutor;
-                if (variableExpressionExecutor.getAttribute().getName()
-                        .equals(AGG_START_TIMESTAMP_COL)) {
-                    outerSelectColumnJoiner.add(" ? " + SQL_AS + variableExpressionExecutor.getAttribute().getName());
-                } else if (!variableExpressionExecutor.getAttribute().getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
-                    subSelectT2ColumnJoiner.add(variableExpressionExecutor.getAttribute().getName());
-                    if (groupByColumnNames.contains(variableExpressionExecutor.getAttribute().getName())) {
-                        outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." +
-                                variableExpressionExecutor.getAttribute().getName() +
-                                SQL_AS + attributeList.get(i).getName());
-                        subSelectT1ColumnJoiner.add(variableExpressionExecutor.getAttribute().getName());
-                    } else {
-                        outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T2 + "." +
-                                variableExpressionExecutor.getAttribute().getName() +
-                                SQL_AS + attributeList.get(i).getName());
-                    }
-                }
-            } else if (expressionExecutor instanceof IncrementalAggregateBaseTimeFunctionExecutor) {
-                if (attributeList.get(i).getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
-                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + SQL_AS +
-                            AGG_EXTERNAL_TIMESTAMP_COL);
-                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
-                            replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
-                            dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
-                            + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
-                    subSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
-                            replace(PLACEHOLDER_COLUMN,  AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
-                            dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
-                            + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
-                    onConditionBuilder.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + EQUALS +
-                            SUB_SELECT_QUERY_REF_T2 + "." + AGG_EXTERNAL_TIMESTAMP_COL);
-                } else {
-                    outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
-                }
-            } else if (expressionExecutor instanceof MaxAttributeAggregatorExecutor) {
-                if (attributeList.get(i).getName().equals(AGG_LAST_TIMESTAMP_COL)) {
-                    innerSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().
-                            replace(PLACEHOLDER_COLUMN, attributeList.get(i).getName()));
-                    subSelectT2ColumnJoiner.add(attributeList.get(i).getName());
-                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T2 + "." + attributeList.get(i).getName() +
-                            SQL_AS + attributeList.get(i).getName());
-                } else {
-                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
-                            attributeList.get(i).getName());
-                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().replace(
-                            PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
-                            attributeList.get(i).getName());
-                }
-            } else if (expressionExecutor instanceof MinAttributeAggregatorExecutor) {
-                outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
-                        attributeList.get(i).getName());
-                subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMinFunction().replace(
-                        PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
-                        attributeList.get(i).getName());
-            } else if (expressionExecutor instanceof ConstantExpressionExecutor) {
-                outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() +
-                        SQL_AS + attributeList.get(i).getName());
-            } else if (expressionExecutor instanceof SumAttributeAggregatorExecutor) {
-                outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() +
-                        SQL_AS + attributeList.get(i).getName());
-                subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getSumFunction().replace(
-                        PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS + attributeList.get(i).getName());
+        if (isDistributed) {
+            filterQueryBuilder.append(" AND ").append(AGG_SHARD_ID_COL).append(" = '").append(shardID).append("' ");
+            if (isProcessingOnExternalTime){
+                subSelectT1ColumnJoiner.add(AGG_SHARD_ID_COL);
             }
-            i++;
         }
 
         if (isProcessingOnExternalTime) {
-            filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
-                    .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");
+            groupByVariableList.stream().forEach(variable -> {
+                groupByColumnNames.add(variable.getAttributeName());
+                groupByQueryBuilder.add(variable.getAttributeName());
+                onConditionBuilder.add(SUB_SELECT_QUERY_REF_T1 + "." + variable.getAttributeName() +
+                        EQUALS + SUB_SELECT_QUERY_REF_T2 + "." + variable.getAttributeName());
+            });
+
+            for (ExpressionExecutor expressionExecutor : expressionExecutors) {
+
+                if (expressionExecutor instanceof VariableExpressionExecutor) {
+                    VariableExpressionExecutor variableExpressionExecutor = (VariableExpressionExecutor) expressionExecutor;
+                    if (variableExpressionExecutor.getAttribute().getName()
+                            .equals(AGG_START_TIMESTAMP_COL)) {
+                        outerSelectColumnJoiner.add(" ? " + SQL_AS + variableExpressionExecutor.getAttribute().getName());
+                    } else if (!variableExpressionExecutor.getAttribute().getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
+                        subSelectT2ColumnJoiner.add(variableExpressionExecutor.getAttribute().getName());
+                        if (groupByColumnNames.contains(variableExpressionExecutor.getAttribute().getName())) {
+                            outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." +
+                                    variableExpressionExecutor.getAttribute().getName() +
+                                    SQL_AS + attributeList.get(i).getName());
+                            subSelectT1ColumnJoiner.add(variableExpressionExecutor.getAttribute().getName());
+                        } else {
+                            outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T2 + "." +
+                                    variableExpressionExecutor.getAttribute().getName() +
+                                    SQL_AS + attributeList.get(i).getName());
+                        }
+                    }
+                } else if (expressionExecutor instanceof IncrementalAggregateBaseTimeFunctionExecutor) {
+                    if (attributeList.get(i).getName().equals(AGG_EXTERNAL_TIMESTAMP_COL)) {
+                        outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + SQL_AS +
+                                AGG_EXTERNAL_TIMESTAMP_COL);
+                        subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
+                                replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                                dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
+                                + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
+                        subSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
+                                replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
+                                dbAggregationTimeConversionDurationMapping.getDurationMapping(duration))
+                                + SQL_AS + AGG_EXTERNAL_TIMESTAMP_COL);
+                        onConditionBuilder.add(SUB_SELECT_QUERY_REF_T1 + "." + AGG_EXTERNAL_TIMESTAMP_COL + EQUALS +
+                                SUB_SELECT_QUERY_REF_T2 + "." + AGG_EXTERNAL_TIMESTAMP_COL);
+                    } else {
+                        outerSelectColumnJoiner.add(" ? " + SQL_AS + attributeList.get(i).getName());
+                    }
+                } else if (expressionExecutor instanceof MaxAttributeAggregatorExecutor) {
+                    if (attributeList.get(i).getName().equals(AGG_LAST_TIMESTAMP_COL)) {
+                        innerSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().
+                                replace(PLACEHOLDER_COLUMN, attributeList.get(i).getName()));
+                        subSelectT2ColumnJoiner.add(attributeList.get(i).getName());
+                        outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T2 + "." + attributeList.get(i).getName() +
+                                SQL_AS + attributeList.get(i).getName());
+                    } else {
+                        outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
+                                attributeList.get(i).getName());
+                        subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().replace(
+                                PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
+                                attributeList.get(i).getName());
+                    }
+                } else if (expressionExecutor instanceof MinAttributeAggregatorExecutor) {
+                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() + SQL_AS +
+                            attributeList.get(i).getName());
+                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMinFunction().replace(
+                            PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS +
+                            attributeList.get(i).getName());
+                } else if (expressionExecutor instanceof ConstantExpressionExecutor) {
+                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() +
+                            SQL_AS + attributeList.get(i).getName());
+                } else if (expressionExecutor instanceof SumAttributeAggregatorExecutor) {
+                    outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." + attributeList.get(i).getName() +
+                            SQL_AS + attributeList.get(i).getName());
+                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getSumFunction().replace(
+                            PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS + attributeList.get(i).getName());
+                }
+                i++;
+            }
+
             groupByQueryBuilder.add(dbAggregationSelectFunctionTemplates.getTimeConversionFunction().
                     replace(PLACEHOLDER_COLUMN, AGG_EXTERNAL_TIMESTAMP_COL).replace(PLACEHOLDER_DURATION,
                     dbAggregationTimeConversionDurationMapping.getDurationMapping(duration)));
+
+            groupByClause = dbAggregationSelectQueryTemplate.getGroupByClause().replace(PLACEHOLDER_COLUMNS,
+                    groupByQueryBuilder.toString());
+
+            innerWhereFilterClause = dbAggregationSelectQueryTemplate.getWhereClause().
+                    replace(PLACEHOLDER_CONDITION, filterQueryBuilder.toString());
+            innerT2Query.add(innerSelectT2ColumnJoiner.toString()).add(innerFromClause).
+                    add(innerWhereFilterClause).add(groupByClause);
+
+            subQueryT1.add(subSelectT1ColumnJoiner.toString()).add(innerFromClause).add(innerWhereFilterClause).add(groupByClause);
+
+            subQueryT2.add(dbAggregationSelectQueryTemplate.getSelectQueryWithInnerSelect().
+                    replace(PLACEHOLDER_SELECTORS, subSelectT2ColumnJoiner.toString()).
+                    replace(PLACEHOLDER_TABLE_NAME, parentAggregationTable.getTableDefinition().getId()).
+                    replace(PLACEHOLDER_COLUMN, AGG_LAST_TIMESTAMP_COL).
+                    replace(PLACEHOLDER_INNER_QUERY, innerT2Query.toString()));
+
+            finalSelectQuery.add(dbAggregationSelectQueryTemplate.getJoinClause().
+                    replace(PLACEHOLDER_SELECTORS, outerSelectColumnJoiner.toString()).
+                    replace(PLACEHOLDER_FROM_CONDITION, subQueryT1.toString()).
+                    replace(PLACEHOLDER_INNER_QUERY, subQueryT2.toString()).
+                    replace(PLACEHOLDER_CONDITION, onConditionBuilder.toString()));
+
+            completeQuery.add(insertIntoQueryBuilder.toString()).add(finalSelectQuery.toString());
+
         } else {
-            filterQueryBuilder.append(" (").append(AGG_START_TIMESTAMP_COL).append(" >= ?").append(" AND ")
-                    .append(AGG_START_TIMESTAMP_COL).append(" < ? ").append(") ");
+
+            for (ExpressionExecutor executor : expressionExecutors) {
+                if (executor instanceof VariableExpressionExecutor) {
+                    VariableExpressionExecutor variableExpressionExecutor = (VariableExpressionExecutor) executor;
+                    if (variableExpressionExecutor.getAttribute().getName().equals(AGG_START_TIMESTAMP_COL)) {
+                        subSelectT1ColumnJoiner.add("? " + SQL_AS + variableExpressionExecutor.getAttribute().getName());
+                    } else {
+                        subSelectT1ColumnJoiner.add(variableExpressionExecutor.getAttribute().getName());
+                        groupByQueryBuilder.add(variableExpressionExecutor.getAttribute().getName());
+                    }
+                } else if (executor instanceof ConstantExpressionExecutor) {
+                    if (((ConstantExpressionExecutor) executor).getValue() != null) {
+                        subSelectT1ColumnJoiner.add("'" + ((ConstantExpressionExecutor) executor).getValue() + "' " +
+                                SQL_AS + attributeList.get(i).getName());
+                    } else {
+                        subSelectT1ColumnJoiner.add(attributeList.get(i).getName());
+                    }
+                } else if (executor instanceof SumAttributeAggregatorExecutor) {
+                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getSumFunction().replace(PLACEHOLDER_COLUMN,
+                            attributeList.get(i).getName()).concat(SQL_AS).concat(attributeList.get(i).getName()));
+                } else if (executor instanceof MinAttributeAggregatorExecutor) {
+                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMinFunction().replace(PLACEHOLDER_COLUMN,
+                            attributeList.get(i).getName()).concat(SQL_AS).concat(attributeList.get(i).getName()));
+                } else if (executor instanceof MaxAttributeAggregatorExecutor) {
+                    subSelectT1ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().replace(PLACEHOLDER_COLUMN,
+                            attributeList.get(i).getName()).concat(SQL_AS).concat(attributeList.get(i).getName()));
+                }
+                i++;
+            }
+
+            completeQuery.add(insertIntoQueryBuilder.toString()).add(subSelectT1ColumnJoiner.toString()).add(innerFromClause).
+                    add(SQL_WHERE + filterQueryBuilder).add(dbAggregationSelectQueryTemplate.getGroupByClause().
+                    replace(PLACEHOLDER_COLUMNS, groupByQueryBuilder.toString()));
         }
-        if (isDistributed) {
-            filterQueryBuilder.append(" AND ").append(AGG_SHARD_ID_COL).append(" = '").append(shardID).append("' ");
-            subSelectT1ColumnJoiner.add(AGG_SHARD_ID_COL);
-            groupByQueryBuilder.add(AGG_SHARD_ID_COL);
-        }
-
-        groupByClause = dbAggregationSelectQueryTemplate.getGroupByClause().replace(PLACEHOLDER_COLUMNS,
-                groupByQueryBuilder.toString());
-
-        innerWhereFilterClause = dbAggregationSelectQueryTemplate.getWhereClause().
-                replace(PLACEHOLDER_CONDITION, filterQueryBuilder.toString());
-        innerT2Query.add(innerSelectT2ColumnJoiner.toString()).add(innerFromClause).
-                add(innerWhereFilterClause).add(groupByClause);
-
-        subQueryT1.add(subSelectT1ColumnJoiner.toString()).add(innerFromClause).add(innerWhereFilterClause).add(groupByClause);
-
-        subQueryT2.add(dbAggregationSelectQueryTemplate.getSelectQueryWithInnerSelect().
-                replace(PLACEHOLDER_SELECTORS, subSelectT2ColumnJoiner.toString()).
-                replace(PLACEHOLDER_TABLE_NAME, parentAggregationTable.getTableDefinition().getId()).
-                replace(PLACEHOLDER_COLUMN, AGG_LAST_TIMESTAMP_COL).
-                replace(PLACEHOLDER_INNER_QUERY, innerT2Query.toString()));
-
-        finalSelectQuery.add(dbAggregationSelectQueryTemplate.getJoinClause().
-                replace(PLACEHOLDER_SELECTORS, outerSelectColumnJoiner.toString()).
-                replace(PLACEHOLDER_FROM_CONDITION, subQueryT1.toString()).
-                replace(PLACEHOLDER_INNER_QUERY, subQueryT2.toString()).
-                replace(PLACEHOLDER_CONDITION, onConditionBuilder.toString()));
-
-        completeQuery.add(insertIntoQueryBuilder.toString()).add(finalSelectQuery.toString());
-
         return completeQuery.toString();
 
     }
 
-    private static Map<Attribute, int[]> generateCUDInputStreamAttributes() {
+    private static Map<Attribute, int[]> generateCUDInputStreamAttributes(boolean isProcessingOnExternalTime) {
         Map<Attribute, int[]> cudInputStreamAttributeList = new LinkedHashMap<>();
-        cudInputStreamAttributeList.put(new Attribute(FROM_TIMESTAMP, Attribute.Type.LONG), new int[]{0, 1, 3});
-        cudInputStreamAttributeList.put(new Attribute(TO_TIMESTAMP, Attribute.Type.LONG), new int[]{2, 4});
+        if (isProcessingOnExternalTime) {
+            cudInputStreamAttributeList.put(new Attribute(FROM_TIMESTAMP, Attribute.Type.LONG), new int[]{0, 1, 3});
+            cudInputStreamAttributeList.put(new Attribute(TO_TIMESTAMP, Attribute.Type.LONG), new int[]{2, 4});
+        } else {
+            cudInputStreamAttributeList.put(new Attribute(FROM_TIMESTAMP, Attribute.Type.LONG), new int[]{0, 1});
+            cudInputStreamAttributeList.put(new Attribute(TO_TIMESTAMP, Attribute.Type.LONG), new int[]{2});
+        }
         return cudInputStreamAttributeList;
     }
 
-    private static Database getDatabaseType(ConfigManager configManager,
-                                            AggregationDefinition aggregationDefinition, String datasourceName) {
+    private static Database getDatabaseType(ConfigManager configManager, String datasourceName) {
         ConfigReader configReader = configManager.generateConfigReader("wso2.datasources", datasourceName);
         String databaseType = configReader.readConfig("driverClassName", "null").toLowerCase();
         if (databaseType.contains("mysql")) {
@@ -1345,8 +1396,9 @@ public class AggregationParser {
             return Database.MSSQL;
         } else if (databaseType.contains("db2")) {
             return Database.DB2;
-        } else if (databaseType.contains("h2")) {
-            return Database.H2;
+            //todo Need to fined a timeConversionFunction to handle external time base aggregation
+//        } else if (databaseType.contains("h2")) {
+//            return Database.H2;
         } else {
             log.warn("Provided database type " + databaseType + "is not recognized as a supported database type for" +
                     " persisted incremental aggregation, using MySQL as default ");
