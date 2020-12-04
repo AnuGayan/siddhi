@@ -120,7 +120,6 @@ public class IncrementalExecutor implements Executor {
             ExecutorState executorState = stateHolder.getState();
             try {
                 long timestamp = getTimestamp(streamEvent, executorState);
-                long startTime = executorState.startTimeOfAggregates;
                 executorState.startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(
                         timestamp, duration, timeZone);
                 if (timestamp >= executorState.nextEmitTime) {
