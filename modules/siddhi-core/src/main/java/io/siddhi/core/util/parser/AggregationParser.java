@@ -111,6 +111,7 @@ import static io.siddhi.core.util.SiddhiConstants.AGG_LAST_TIMESTAMP_COL;
 import static io.siddhi.core.util.SiddhiConstants.AGG_SHARD_ID_COL;
 import static io.siddhi.core.util.SiddhiConstants.AGG_START_TIMESTAMP_COL;
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_ELEMENT_ENABLE;
+import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_INDEX;
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_PARTITION_BY_ID;
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_PERSISTED_AGGREGATION;
 import static io.siddhi.core.util.SiddhiConstants.EQUALS;
@@ -147,8 +148,6 @@ import static io.siddhi.core.util.SiddhiConstants.TO_TIMESTAMP;
  */
 public class AggregationParser {
     private static final Logger log = Logger.getLogger(AggregationParser.class);
-    //todo remove this after testing
-    private static final Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap = new HashMap<>();
 
     public static AggregationRuntime parse(AggregationDefinition aggregationDefinition,
                                            SiddhiAppContext siddhiAppContext,
@@ -441,7 +440,7 @@ public class AggregationParser {
             Map<TimePeriod.Duration, Table> aggregationTables = initDefaultTables(aggregatorName,
                     aggregationDurations, processedMetaStreamEvent.getOutputStreamDefinition(),
                     siddhiAppRuntimeBuilder, aggregationDefinition.getAnnotations(), groupByVariableList,
-                    isProcessingOnExternalTime, isDistributed);
+                    isProcessingOnExternalTime, isDistributed, isLatestEventColAdded);
 
             Map<TimePeriod.Duration, Executor> incrementalExecutorMap = buildIncrementalExecutors(
                     processedMetaStreamEvent, processExpressionExecutorsMap, groupByKeyGeneratorMap,
@@ -449,9 +448,6 @@ public class AggregationParser {
                     aggregatorName, shouldUpdateTimestamp, timeZone, isPersistedAggregation,
                     incomingOutputStreamDefinition, isDistributed, shardId, isProcessingOnExternalTime, aggregationDefinition,
                     configManager, groupByVariableList);
-
-
-            aggregationDurationExecutorMap.put(aggregatorName, incrementalExecutorMap);
 
             isOptimisedLookup = isOptimisedLookup &&
                     aggregationTables.get(aggregationDurations.get(0)) instanceof QueryableProcessor;
@@ -1044,12 +1040,13 @@ public class AggregationParser {
             String aggregatorName, List<TimePeriod.Duration> aggregationDurations,
             StreamDefinition streamDefinition, SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
             List<Annotation> annotations, List<Variable> groupByVariableList, boolean isProcessingOnExternalTime,
-            boolean enablePartitioning) {
+            boolean enablePartitioning, boolean isLatestEventColAdded) {
 
         HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
 
         // Create annotations for primary key
         Annotation primaryKeyAnnotation = new Annotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY);
+        Annotation indexAnnotation = new Annotation(ANNOTATION_INDEX);
         primaryKeyAnnotation.element(null, AGG_START_TIMESTAMP_COL);
 
         if (enablePartitioning) {
@@ -1057,6 +1054,10 @@ public class AggregationParser {
         }
         if (isProcessingOnExternalTime) {
             primaryKeyAnnotation.element(null, AGG_EXTERNAL_TIMESTAMP_COL);
+            if (isLatestEventColAdded) {
+                indexAnnotation.element(null, AGG_LAST_TIMESTAMP_COL);
+                annotations.add(indexAnnotation);
+            }
         }
         for (Variable groupByVariable : groupByVariableList) {
             primaryKeyAnnotation.element(null, groupByVariable.getAttributeName());
@@ -1262,7 +1263,7 @@ public class AggregationParser {
                         if (groupByColumnNames.contains(variableExpressionExecutor.getAttribute().getName())) {
                             subSelectT2ColumnJoiner.add(INNER_SELECT_QUERY_REF_T3 + "." +
                                     variableExpressionExecutor.getAttribute().getName() + SQL_AS +
-                                    variableExpressionExecutor.getAttribute().getName()) ;
+                                    variableExpressionExecutor.getAttribute().getName());
                             outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T1 + "." +
                                     variableExpressionExecutor.getAttribute().getName() +
                                     SQL_AS + attributeList.get(i).getName());
@@ -1295,7 +1296,8 @@ public class AggregationParser {
                 } else if (expressionExecutor instanceof MaxAttributeAggregatorExecutor) {
                     if (attributeList.get(i).getName().equals(AGG_LAST_TIMESTAMP_COL)) {
                         innerSelectT2ColumnJoiner.add(dbAggregationSelectFunctionTemplates.getMaxFunction().
-                                replace(PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS + attributeList.get(i).getName());
+                                replace(PLACEHOLDER_COLUMN, attributeList.get(i).getName()) + SQL_AS
+                                + attributeList.get(i).getName());
                         subSelectT2ColumnJoiner.add(INNER_SELECT_QUERY_REF_T3 + "." + attributeList.get(i).getName() +
                                 SQL_AS + attributeList.get(i).getName());
                         outerSelectColumnJoiner.add(SUB_SELECT_QUERY_REF_T2 + "." + attributeList.get(i).getName() +
@@ -1484,10 +1486,6 @@ public class AggregationParser {
         abstractStreamProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
         abstractStreamProcessor.setNextProcessor(new PersistedAggregationResultsProcessor(duration));
         return abstractStreamProcessor;
-    }
-
-    public static Map<String, Map<TimePeriod.Duration, Executor>> getAggregationDurationExecutorMap() {
-        return aggregationDurationExecutorMap;
     }
 
     public enum Database {
