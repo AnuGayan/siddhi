@@ -143,8 +143,6 @@ import static io.siddhi.core.util.SiddhiConstants.TO_TIMESTAMP;
  */
 public class AggregationParser {
     private static final Logger log = Logger.getLogger(AggregationParser.class);
-    //todo remove this after testing
-    private static final Map<String, Map<TimePeriod.Duration, Executor>> aggregationDurationExecutorMap = new HashMap<>();
 
     public static AggregationRuntime parse(AggregationDefinition aggregationDefinition,
                                            SiddhiAppContext siddhiAppContext,
@@ -446,9 +444,6 @@ public class AggregationParser {
                     incomingOutputStreamDefinition, isDistributed, shardId, isProcessingOnExternalTime, aggregationDefinition,
                     configManager, groupByVariableList);
 
-
-            aggregationDurationExecutorMap.put(aggregatorName, incrementalExecutorMap);
-
             isOptimisedLookup = isOptimisedLookup &&
                     aggregationTables.get(aggregationDurations.get(0)) instanceof QueryableProcessor;
 
@@ -465,7 +460,8 @@ public class AggregationParser {
 
             IncrementalDataPurger incrementalDataPurger = new IncrementalDataPurger();
             incrementalDataPurger.init(aggregationDefinition, new StreamEventFactory(processedMetaStreamEvent)
-                    , aggregationTables, isProcessingOnExternalTime, siddhiQueryContext, aggregationDurations);
+                    , aggregationTables, isProcessingOnExternalTime, siddhiQueryContext, aggregationDurations, timeZone,
+                    windowMap, aggregationMap);
 
             //Recreate in-memory data from tables
             IncrementalExecutorsInitialiser incrementalExecutorsInitialiser = new IncrementalExecutorsInitialiser(
@@ -1224,7 +1220,8 @@ public class AggregationParser {
 
         if (isDistributed) {
             filterQueryBuilder.append(" AND ").append(AGG_SHARD_ID_COL).append(" = '").append(shardID).append("' ");
-            if (isProcessingOnExternalTime){
+            groupByQueryBuilder.add(AGG_SHARD_ID_COL);
+            if (isProcessingOnExternalTime) {
                 subSelectT1ColumnJoiner.add(AGG_SHARD_ID_COL);
             }
         }
@@ -1394,11 +1391,8 @@ public class AggregationParser {
             return Database.ORACLE;
         } else if (databaseType.contains("mssql")) {
             return Database.MSSQL;
-        } else if (databaseType.contains("db2")) {
-            return Database.DB2;
-            //todo Need to fined a timeConversionFunction to handle external time base aggregation
-//        } else if (databaseType.contains("h2")) {
-//            return Database.H2;
+        } else if (databaseType.contains("postgres")) {
+            return Database.PostgreSQL;
         } else {
             log.warn("Provided database type " + databaseType + "is not recognized as a supported database type for" +
                     " persisted incremental aggregation, using MySQL as default ");
@@ -1469,15 +1463,12 @@ public class AggregationParser {
         return abstractStreamProcessor;
     }
 
-    public static Map<String, Map<TimePeriod.Duration, Executor>> getAggregationDurationExecutorMap() {
-        return aggregationDurationExecutorMap;
-    }
-
     public enum Database {
         MYSQL,
         ORACLE,
         MSSQL,
         DB2,
+        PostgreSQL,
         H2,
         DEFAULT
     }
