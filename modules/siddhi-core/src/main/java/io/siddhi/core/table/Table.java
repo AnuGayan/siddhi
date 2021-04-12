@@ -225,6 +225,10 @@ public abstract class Table implements FindableProcessor, MemoryCalculable {
                 Level.BASIC.compareTo(siddhiAppContext.getRootMetricsLevel()) <= 0) {
             throughputTrackerInsert.eventsIn(noOfEvents);
         }
+        if (latencyTrackerInsert != null &&
+                Level.BASIC.compareTo(siddhiAppContext.getRootMetricsLevel()) <= 0) {
+            latencyTrackerInsert.markOut();
+        }
     }
 
     public abstract void add(ComplexEventChunk<StreamEvent> addingEventChunk);
