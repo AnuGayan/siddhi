@@ -78,7 +78,7 @@ public class OnDemandQueryTestCase {
                 from(
                         InputStore.store("cseEventTable").
                                 on(Expression.compare(Expression.variable("price"),
-                                        Compare.Operator.GREATER_THAN, Expression.value(40)),
+                                                Compare.Operator.GREATER_THAN, Expression.value(40)),
                                         Within.within(Expression.value("2017/01/*")), Expression.value("day"))).
                 select(
                         Selector.selector().

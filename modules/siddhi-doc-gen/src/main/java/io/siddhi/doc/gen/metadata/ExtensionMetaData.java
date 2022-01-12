@@ -59,12 +59,12 @@ public class ExtensionMetaData implements Comparable<ExtensionMetaData> {
         this.description = description;
     }
 
-    public void setDeprecated(boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
     public boolean isDeprecated() {
         return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
     }
 
     public List<ParameterMetaData> getParameters() {

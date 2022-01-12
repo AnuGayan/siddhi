@@ -93,7 +93,7 @@ public class DefineStreamTestCase {
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
                         attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("Foo").element
-                        ("name", "bar").element("Custom")),
+                                ("name", "bar").element("Custom")),
                 streamDefinition);
     }
 

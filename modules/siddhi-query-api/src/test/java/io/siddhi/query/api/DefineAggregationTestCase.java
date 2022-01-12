@@ -73,14 +73,14 @@ public class DefineAggregationTestCase {
                         InputStream.joinStream(
                                 InputStream.stream("s1", "cseEventStream").
                                         filter(Expression.and(
-                                                Expression.compare(
-                                                        Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                        Compare.Operator.GREATER_THAN,
-                                                        Expression.variable("price").ofStream("cseEventStream")),
-                                                Expression.compare(Expression.value(100),
-                                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                                        Expression.variable("volume").ofStream("cseEventStream")
-                                                )
+                                                        Expression.compare(
+                                                                Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                                Compare.Operator.GREATER_THAN,
+                                                                Expression.variable("price").ofStream("cseEventStream")),
+                                                        Expression.compare(Expression.value(100),
+                                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                                Expression.variable("volume").ofStream("cseEventStream")
+                                                        )
                                                 )
                                         ).window("lengthBatch", Expression.value(50)),
                                 JoinInputStream.Type.JOIN,
@@ -117,14 +117,14 @@ public class DefineAggregationTestCase {
                         InputStream.joinStream(
                                 InputStream.stream("s1", "cseEventStream").
                                         filter(Expression.and(
-                                                Expression.compare(
-                                                        Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                        Compare.Operator.GREATER_THAN,
-                                                        Expression.variable("price").ofStream("cseEventStream")),
-                                                Expression.compare(Expression.value(100),
-                                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                                        Expression.variable("volume").ofStream("cseEventStream")
-                                                )
+                                                        Expression.compare(
+                                                                Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                                Compare.Operator.GREATER_THAN,
+                                                                Expression.variable("price").ofStream("cseEventStream")),
+                                                        Expression.compare(Expression.value(100),
+                                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                                Expression.variable("volume").ofStream("cseEventStream")
+                                                        )
                                                 )
                                         ).window("lengthBatch", Expression.value(50)),
                                 JoinInputStream.Type.JOIN,
@@ -156,14 +156,14 @@ public class DefineAggregationTestCase {
                         InputStream.joinStream(
                                 InputStream.stream("s1", "cseEventStream").
                                         filter(Expression.and(
-                                                Expression.compare(
-                                                        Expression.add(Expression.value(7), Expression.value(9.5)),
-                                                        Compare.Operator.GREATER_THAN,
-                                                        Expression.variable("price").ofStream("cseEventStream")),
-                                                Expression.compare(Expression.value(100),
-                                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                                        Expression.variable("volume").ofStream("cseEventStream")
-                                                )
+                                                        Expression.compare(
+                                                                Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                                Compare.Operator.GREATER_THAN,
+                                                                Expression.variable("price").ofStream("cseEventStream")),
+                                                        Expression.compare(Expression.value(100),
+                                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                                Expression.variable("volume").ofStream("cseEventStream")
+                                                        )
                                                 )
                                         ).window("lengthBatch", Expression.value(50)),
                                 JoinInputStream.Type.JOIN,
@@ -232,7 +232,7 @@ public class DefineAggregationTestCase {
     public void testDefineAggregation4() {
         SiddhiApp.siddhiApp("Test").defineAggregation(AggregationDefinition.id("stockAggregation"))
                 .defineStream(StreamDefinition.id("stockAggregation").attribute("symbol",
-                        Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+                                Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                         attribute("volume", Attribute.Type.FLOAT));
     }
 

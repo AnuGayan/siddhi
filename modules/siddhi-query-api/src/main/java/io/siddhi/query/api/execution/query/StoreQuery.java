@@ -40,10 +40,6 @@ public class StoreQuery implements SiddhiElement {
     public StoreQuery() {
     }
 
-    public OnDemandQuery getOnDemandQuery() {
-        return onDemandQuery;
-    }
-
     /**
      * Builder method to get a new on-demand query instance
      *
@@ -51,6 +47,10 @@ public class StoreQuery implements SiddhiElement {
      */
     public static StoreQuery query() {
         return new StoreQuery();
+    }
+
+    public OnDemandQuery getOnDemandQuery() {
+        return onDemandQuery;
     }
 
     /**

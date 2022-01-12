@@ -65,17 +65,17 @@ public class AbsentPatternTestCase {
 
         Query api = Query.query();
         api.from(
-                InputStream.patternStream(State.next(
-                        State.stream(InputStream.stream("e1", "Stream1")
-                                .filter(Expression.compare(Expression.variable("price"),
-                                        Compare.Operator.GREATER_THAN,
-                                        Expression.value(20)))),
-                        State.logicalNot(State.stream(InputStream.stream("Stream2")
+                        InputStream.patternStream(State.next(
+                                State.stream(InputStream.stream("e1", "Stream1")
                                         .filter(Expression.compare(Expression.variable("price"),
                                                 Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price").ofStream("e1")))),
-                                new TimeConstant(2000)))
-                ))
+                                                Expression.value(20)))),
+                                State.logicalNot(State.stream(InputStream.stream("Stream2")
+                                                .filter(Expression.compare(Expression.variable("price"),
+                                                        Compare.Operator.GREATER_THAN,
+                                                        Expression.variable("price").ofStream("e1")))),
+                                        new TimeConstant(2000)))
+                        ))
                 .select(Selector.selector().select("symbol1", Expression.variable("symbol").ofStream("e1")))
                 .insertInto("OutputStream");
 

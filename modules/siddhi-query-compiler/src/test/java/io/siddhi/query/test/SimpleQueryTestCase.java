@@ -48,9 +48,9 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
-                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
-                        .value(3))).
-                window("length", Expression.value(50))).
+                        filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
+                                .value(3))).
+                        window("length", Expression.value(50))).
                 select(Selector.selector().select(Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
                         groupBy(Expression.variable("symbol")).
@@ -74,9 +74,9 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
-                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN_EQUAL,
-                        Expression.value(20))).
-                window("lengthBatch", Expression.value(50))).
+                        filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN_EQUAL,
+                                Expression.value(20))).
+                        window("lengthBatch", Expression.value(50))).
                 select(Selector.selector().
                         select(Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
@@ -98,7 +98,7 @@ public class SimpleQueryTestCase {
                 "insert into FastMovingStockQuotes \n;");
 
         Query api = Query.query().from(InputStream.stream("AllStockQuotes").
-                window("time", Expression.Time.minute(10))).
+                        window("time", Expression.Time.minute(10))).
                 select(Selector.selector().
                         select("symbol", Expression.variable("symbol")).
                         select(Expression.variable("price")).
@@ -127,7 +127,7 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("AllStockQuotes").
-                window("lengthBatch", Expression.value(50))).
+                        window("lengthBatch", Expression.value(50))).
                 select(Selector.selector().
                         select("symbol", Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price")))).
@@ -144,9 +144,9 @@ public class SimpleQueryTestCase {
         );
         AssertJUnit.assertNotNull(query);
         Query api = Query.query().from(InputStream.stream("AllStockQuotes").
-                filter(Expression.and(Expression.compare(Expression.variable("price"), Compare.Operator.EQUAL,
-                        Expression.variable("price").ofStream("Foo")), Expression.compare(Expression.variable("try")
-                        .ofStream("Foo"), Compare.Operator.LESS_THAN, Expression.value(5))))).
+                        filter(Expression.and(Expression.compare(Expression.variable("price"), Compare.Operator.EQUAL,
+                                Expression.variable("price").ofStream("Foo")), Expression.compare(Expression.variable("try")
+                                .ofStream("Foo"), Compare.Operator.LESS_THAN, Expression.value(5))))).
                 select(Selector.selector().
                         select("symbol", Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))));
@@ -419,13 +419,13 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.divide(Expression.value(7), Expression
-                                        .value(9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.compare(Expression.value(100),
-                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                        Expression.variable("volume")
-                                )
+                                                        .value(9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.compare(Expression.value(100),
+                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).window("lengthBatch", Expression.value(50))
         );
@@ -445,15 +445,15 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.function("ext", "FooBarCond", Expression
-                                        .value(7), Expression.value(9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.function("ext", "BarCond", Expression.value(100),
-                                        Expression.variable("volume")
-                                )
+                                                        .value(7), Expression.value(9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.function("ext", "BarCond", Expression.value(100),
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).function("ext", "Foo", Expression.value(67), Expression.value(89)).window("ext",
-                        "lengthFirst10", Expression.value(50))
+                                "lengthFirst10", Expression.value(50))
         );
         query.select(
                 Selector.selector().
@@ -469,15 +469,15 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.function("FooBarCond", Expression.value
-                                        (7), Expression.value(9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.function("BarCond", Expression.value(100),
-                                        Expression.variable("volume")
-                                )
+                                                        (7), Expression.value(9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.function("BarCond", Expression.value(100),
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).function("ext", "Foo", Expression.value(67), Expression.value(89)).window("ext",
-                        "lengthFirst10", Expression.value(50))
+                                "lengthFirst10", Expression.value(50))
         );
         query.select(
                 Selector.selector().
@@ -504,13 +504,13 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
-                                        (9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.compare(Expression.value(100),
-                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                        Expression.variable("volume")
-                                )
+                                                        (9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.compare(Expression.value(100),
+                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).window("length", Expression.value(50))
         );
@@ -550,9 +550,9 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
-                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
-                        .value(3))).
-                window("length", Expression.value(50))).
+                        filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
+                                .value(3))).
+                        window("length", Expression.value(50))).
                 select(Selector.selector().select(Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
                         groupBy(Expression.variable("symbol")).
@@ -580,9 +580,9 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
-                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
-                        .value(3))).
-                window("length", Expression.value(50))).
+                        filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
+                                .value(3))).
+                        window("length", Expression.value(50))).
                 select(Selector.selector().select(Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
                         groupBy(Expression.variable("symbol")).
@@ -611,9 +611,9 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
-                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
-                        .value(3))).
-                window("length", Expression.value(50))).
+                        filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
+                                .value(3))).
+                        window("length", Expression.value(50))).
                 select(Selector.selector().select(Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
                         groupBy(Expression.variable("symbol")).
@@ -646,13 +646,13 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
-                                        (9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.compare(Expression.value(100),
-                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                        Expression.variable("volume")
-                                )
+                                                        (9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.compare(Expression.value(100),
+                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).window("length", Expression.value(50))
         );
@@ -693,13 +693,13 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
-                                        (9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.compare(Expression.value(100),
-                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                        Expression.variable("volume")
-                                )
+                                                        (9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.compare(Expression.value(100),
+                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).window("length", Expression.value(50))
         );
@@ -735,13 +735,13 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
-                                        (9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.compare(Expression.value(100),
-                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                        Expression.variable("volume")
-                                )
+                                                        (9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.compare(Expression.value(100),
+                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).window("length", Expression.value(50))
         );
@@ -784,13 +784,13 @@ public class SimpleQueryTestCase {
         query.from(
                 InputStream.stream("StockStream").
                         filter(Expression.and(Expression.compare(Expression.add(Expression.value(7), Expression.value
-                                        (9.5)),
-                                Compare.Operator.GREATER_THAN,
-                                Expression.variable("price")),
-                                Expression.compare(Expression.value(100),
-                                        Compare.Operator.GREATER_THAN_EQUAL,
-                                        Expression.variable("volume")
-                                )
+                                                        (9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price")),
+                                        Expression.compare(Expression.value(100),
+                                                Compare.Operator.GREATER_THAN_EQUAL,
+                                                Expression.variable("volume")
+                                        )
                                 )
                         ).window("length", Expression.value(50))
         );
@@ -824,7 +824,7 @@ public class SimpleQueryTestCase {
                 "{id='null', isInnerStream=false, streamIndex=null, functionId='null', functionIndex=null, " +
                 "attributeName='symbol'}}], groupByList=[], havingExpression=null, orderByList=[], limit=null, " +
                 "offset=null}";
-        String selector  = Selector.selector().select(Expression.variable("symbol")).toString();
+        String selector = Selector.selector().select(Expression.variable("symbol")).toString();
         AssertJUnit.assertEquals(selector, selectorString);
     }
 
@@ -842,9 +842,9 @@ public class SimpleQueryTestCase {
         AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
-                filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
-                        .value(3))).
-                window("length", Expression.value(50))).
+                        filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
+                                .value(3))).
+                        window("length", Expression.value(50))).
                 select(Selector.selector().select(Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
                         groupBy(Expression.variable("symbol")).

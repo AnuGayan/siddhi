@@ -91,16 +91,16 @@ public class DefineAggregationTestCase {
 
         Query queryApi = Query.query().
                 from(InputStream.joinStream(
-                        InputStream.stream("b", "barStream"),
-                        JoinInputStream.Type.JOIN,
-                        InputStream.stream("a", "cseEventAggregation"),
-                        Expression.compare(
-                                Expression.variable("symbol").ofStream("a"),
-                                Compare.Operator.EQUAL,
-                                Expression.variable("symbol").ofStream("b")),
-                        Within.within(Expression.value("2014-02-15T00:00:00Z"),
-                                Expression.value("2014-03-16T00:00:00Z")),
-                        Expression.value("day")
+                                InputStream.stream("b", "barStream"),
+                                JoinInputStream.Type.JOIN,
+                                InputStream.stream("a", "cseEventAggregation"),
+                                Expression.compare(
+                                        Expression.variable("symbol").ofStream("a"),
+                                        Compare.Operator.EQUAL,
+                                        Expression.variable("symbol").ofStream("b")),
+                                Within.within(Expression.value("2014-02-15T00:00:00Z"),
+                                        Expression.value("2014-03-16T00:00:00Z")),
+                                Expression.value("day")
                         )
                 ).
                 select(

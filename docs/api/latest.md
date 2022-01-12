@@ -2,7 +2,9 @@
 
 ## Core
 
-### and *<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#aggregate-function">(Aggregate Function)</a>*
+### and *<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#aggregate-function">(Aggregate
+Function)</a>*
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Returns the results of AND operation for all the events.</p>
 <p></p>
@@ -12,7 +14,8 @@
 <BOOL> and(<BOOL> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -33,12 +36,15 @@
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from cscStream#window.lengthBatch(10)
 select and(isFraud) as isFraudTransaction
 insert into alertStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns the result for AND operation of isFraud values as a boolean value for event chunk expiry by window length batch.</p>
 <p></p>
@@ -52,7 +58,8 @@ insert into alertStream;
 <DOUBLE> avg(<INT|LONG|DOUBLE|FLOAT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -73,12 +80,15 @@ insert into alertStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream#window.timeBatch
  select avg(temp) as avgTemp
  insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">avg(temp) returns the average temp value for all the events based on their arrival and expiry.</p>
 <p></p>
@@ -93,7 +103,8 @@ from fooStream#window.timeBatch
 <LONG> count(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -114,12 +125,15 @@ from fooStream#window.timeBatch
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream#window.timeBatch(10 sec)
 select count() as count
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return the count of all the events for time batch in 10 seconds.</p>
 <p></p>
@@ -133,7 +147,8 @@ insert into barStream;
 <LONG> distinctCount(<INT|LONG|DOUBLE|FLOAT|STRING> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -154,12 +169,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select distinctcount(pageID) as count
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">distinctcount(pageID) for the following output returns '3' when the available values are as follows.<br>&nbsp;"WEB_PAGE_1"<br>&nbsp;"WEB_PAGE_1"<br>&nbsp;"WEB_PAGE_2"<br>&nbsp;"WEB_PAGE_3"<br>&nbsp;"WEB_PAGE_1"<br>&nbsp;"WEB_PAGE_2"<br>&nbsp;The three distinct occurences identified are 'WEB_PAGE_1', 'WEB_PAGE_2', and 'WEB_PAGE_3'.</p>
 <p></p>
@@ -173,7 +191,8 @@ insert into barStream;
 <INT|LONG|DOUBLE|FLOAT> max(<INT|LONG|DOUBLE|FLOAT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -194,12 +213,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream#window.timeBatch(10 sec)
 select max(temp) as maxTemp
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">max(temp) returns the maximum temp value recorded for all the events based on their arrival and expiry.</p>
 <p></p>
@@ -213,7 +235,8 @@ insert into barStream;
 <INT|LONG|DOUBLE|FLOAT> maxForever(<INT|LONG|DOUBLE|FLOAT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -234,12 +257,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from inputStream
 select maxForever(temp) as max
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">maxForever(temp) returns the maximum temp value recorded for all the events throughout the lifetime of the query.</p>
 <p></p>
@@ -253,7 +279,8 @@ insert into outputStream;
 <INT|LONG|DOUBLE|FLOAT> min(<INT|LONG|DOUBLE|FLOAT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -274,12 +301,15 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from inputStream
 select min(temp) as minTemp
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">min(temp) returns the minimum temp value recorded for all the events based on their arrival and expiry.</p>
 <p></p>
@@ -293,7 +323,8 @@ insert into outputStream;
 <INT|LONG|DOUBLE|FLOAT> minForever(<INT|LONG|DOUBLE|FLOAT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -314,12 +345,15 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from inputStream
 select minForever(temp) as max
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">minForever(temp) returns the minimum temp value recorded for all the events throughoutthe lifetime of the query.</p>
 <p></p>
@@ -333,7 +367,8 @@ insert into outputStream;
 <BOOL> or(<BOOL> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -354,12 +389,15 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from cscStream#window.lengthBatch(10)
 select or(isFraud) as isFraudTransaction
 insert into alertStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns the result for OR operation of isFraud values as a boolean value for event chunk expiry by window length batch.</p>
 <p></p>
@@ -373,7 +411,8 @@ insert into alertStream;
 <DOUBLE> stdDev(<INT|LONG|DOUBLE|FLOAT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -394,12 +433,15 @@ insert into alertStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from inputStream
 select stddev(temp) as stdTemp
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">stddev(temp) returns the calculated standard deviation of temp for all the events based on their arrival and expiry.</p>
 <p></p>
@@ -413,7 +455,8 @@ insert into outputStream;
 <LONG|DOUBLE> sum(<INT|LONG|DOUBLE|FLOAT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -434,12 +477,15 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from inputStream
 select sum(volume) as sumOfVolume
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns the sum of volume values as a long value for each event arrival and expiry.</p>
 <p></p>
@@ -453,7 +499,8 @@ insert into outputStream;
 <OBJECT> unionSet(<OBJECT> set)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -474,7 +521,9 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from stockStream 
 select createSet(symbol) as initialSet 
@@ -484,6 +533,7 @@ from initStream#window.timeBatch(10 sec)
 select unionSet(initialSet) as distinctSymbols 
 insert into distinctStockStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">distinctStockStream will return the set object which contains the distinct set of stock symbols received during a sliding window of 10 seconds.</p>
 <p></p>
@@ -498,12 +548,15 @@ insert into distinctStockStream;
 ```
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from TempStream
 select convert(roomNo, 'string') as roomNo, temp, UUID() as messageID
 insert into RoomTempStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will converts a room number to string, introducing a message ID to each event asUUID() returns a34eec40-32c2-44fe-8075-7f4fde2e2dd8<br><br>from TempStream<br>select convert(roomNo, 'string') as roomNo, temp, UUID() as messageID<br>insert into RoomTempStream;</p>
 <p></p>
@@ -517,7 +570,8 @@ insert into RoomTempStream;
 <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> cast(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> to.be.caster, <STRING> cast.to)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -546,12 +600,15 @@ insert into RoomTempStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select symbol as name, cast(temp, 'double') as temp
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will cast the fooStream temp field value into 'double' format.</p>
 <p></p>
@@ -565,7 +622,8 @@ insert into barStream;
 <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> coalesce(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg, <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> ...)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -586,12 +644,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select coalesce('123', null, '789') as value
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns first null value 123.</p>
 <p></p>
@@ -623,7 +684,8 @@ insert into barStream;
 <INT|LONG|DOUBLE|FLOAT|STRING|BOOL> convert(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> to.be.converted, <STRING> converted.to)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -652,12 +714,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select convert(temp, 'double') as temp
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will convert fooStream temp value into 'double'.</p>
 <p></p>
@@ -680,7 +745,8 @@ insert into barStream;
 <OBJECT> createSet(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL> input)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -701,12 +767,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from stockStream 
 select createSet(symbol) as initialSet 
 insert into initStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">For every incoming stockStream event, the initStream stream will produce a set object having only one element: the symbol in the incoming stockStream.</p>
 <p></p>
@@ -721,12 +790,15 @@ insert into initStream;
 ```
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select symbol as name, currentTimeMillis() as eventTimestamp 
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will extract current siddhi application timestamp.</p>
 <p></p>
@@ -740,7 +812,8 @@ insert into barStream;
 <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> default(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> attribute, <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> default)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -769,12 +842,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from TempStream
 select default(temp, 0.0) as temp, roomNum
 insert into StandardTempStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will replace TempStream's temp attribute with default value if the temp is null.</p>
 <p></p>
@@ -789,7 +865,8 @@ insert into StandardTempStream;
 <LONG> eventTimestamp(<OBJECT> event)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -810,12 +887,15 @@ insert into StandardTempStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from FooStream
 select symbol as name, eventTimestamp() as eventTimestamp 
 insert into BarStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Extracts current event's timestamp.</p>
 <p></p>
@@ -838,7 +918,8 @@ insert into BarStream;
 <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> ifThenElse(<BOOL> condition, <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> if.expression, <INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> else.expression)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -875,13 +956,16 @@ insert into BarStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 @info(name = 'query1')
 from sensorEventStream
 select sensorValue, ifThenElse(sensorValue>35,'High','Low') as status
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns High if sensorValue = 50.</p>
 <p></p>
@@ -915,7 +999,8 @@ insert into outputStream;
 <BOOL> instanceOfBoolean(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -936,12 +1021,15 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select instanceOfBoolean(switchState) as state
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return true if the value of switchState is true.</p>
 <p></p>
@@ -964,7 +1052,8 @@ insert into barStream;
 <BOOL> instanceOfDouble(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -985,12 +1074,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select instanceOfDouble(value) as state
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return true if the value field format is double ex : 56.45.</p>
 <p></p>
@@ -1013,7 +1105,8 @@ insert into barStream;
 <BOOL> instanceOfFloat(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1034,12 +1127,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select instanceOfFloat(value) as state
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return true if the value field format is float ex : 56.45f.</p>
 <p></p>
@@ -1062,7 +1158,8 @@ insert into barStream;
 <BOOL> instanceOfInteger(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1083,12 +1180,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select instanceOfInteger(value) as state
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return true if the value field format is integer.</p>
 <p></p>
@@ -1111,7 +1211,8 @@ insert into barStream;
 <BOOL> instanceOfLong(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1132,12 +1233,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select instanceOfLong(value) as state
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return true if the value field format is long ex : 56456l.</p>
 <p></p>
@@ -1160,7 +1264,8 @@ insert into barStream;
 <BOOL> instanceOfString(<INT|LONG|DOUBLE|FLOAT|STRING|BOOL|OBJECT> arg)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1181,12 +1286,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from fooStream
 select instanceOfString(value) as state
 insert into barStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return true if the value field format is string ex : 'test'.</p>
 <p></p>
@@ -1209,7 +1317,8 @@ insert into barStream;
 <INT|LONG|DOUBLE|FLOAT> maximum(<INT|LONG|DOUBLE|FLOAT> arg, <INT|LONG|DOUBLE|FLOAT> ...)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1230,12 +1339,15 @@ insert into barStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 @info(name = 'query1') from inputStream
 select maximum(price1, price2, price3) as max
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns the maximum value of the input parameters price1, price2, price3.</p>
 <p></p>
@@ -1249,7 +1361,8 @@ insert into outputStream;
 <INT|LONG|DOUBLE|FLOAT> minimum(<INT|LONG|DOUBLE|FLOAT> arg, <INT|LONG|DOUBLE|FLOAT> ...)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1270,12 +1383,15 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 @info(name = 'query1') from inputStream
 select maximum(price1, price2, price3) as max
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns the minimum value of the input parameters price1, price2, price3.</p>
 <p></p>
@@ -1289,7 +1405,8 @@ insert into outputStream;
 <INT> sizeOfSet(<OBJECT> set)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1310,7 +1427,9 @@ insert into outputStream;
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from stockStream 
 select initSet(symbol) as initialSet 
@@ -1324,6 +1443,7 @@ from distinctStockStream
 select sizeOfSet(distinctSymbols) sizeOfSymbolSet 
 insert into sizeStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">The sizeStream stream will output the number of distinct stock symbols received during a sliding window of 10 seconds.</p>
 <p></p>
@@ -1338,7 +1458,8 @@ pol2Cart(<DOUBLE> theta, <DOUBLE> rho)
 pol2Cart(<DOUBLE> theta, <DOUBLE> rho, <DOUBLE> z)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1375,12 +1496,15 @@ pol2Cart(<DOUBLE> theta, <DOUBLE> rho, <DOUBLE> z)
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from PolarStream#pol2Cart(theta, rho)
 select x, y 
 insert into outputStream ;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will return cartesian coordinates (4.99953024681082, 0.06853693328228748) for theta: 0.7854 and rho: 5.</p>
 <p></p>
@@ -1408,7 +1532,8 @@ log(<STRING> priority, <STRING> log.message)
 log(<STRING> priority, <STRING> log.message, <BOOL> is.event.logged)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1445,12 +1570,15 @@ log(<STRING> priority, <STRING> log.message, <BOOL> is.event.logged)
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 from FooStream#log()
 select *
 insert into BarStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Logs events with SiddhiApp name message prefix on default log level INFO.</p>
 <p></p>
@@ -1510,7 +1638,8 @@ batch()
 batch(<INT> window.length)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1531,7 +1660,9 @@ batch(<INT> window.length)
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 define stream consumerItemStream (itemId string, price float)
 
@@ -1540,6 +1671,7 @@ select price, str:groupConcat(itemId) as itemIds
 group by price
 insert into outputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will output comma separated items IDs that have the same price for each incoming batch of events.</p>
 <p></p>
@@ -1553,7 +1685,8 @@ insert into outputStream;
 cron(<STRING> cron.expression)
 ```
 
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+QUERY PARAMETERS</span>
 <table>
     <tr>
         <th>Name</th>
@@ -1574,7 +1707,9 @@ cron(<STRING> cron.expression)
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">
+EXAMPLE 1</span>
+
 ```
 define stream InputEventStream (symbol string, price float, volume int);
 
@@ -1583,6 +1718,7 @@ from InputEventStream#cron('*/5 * * * * ?')
 select symbol, sum(price) as totalPrice 
 insert into OutputStream;
 ```
+
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This let the totalPrice to gradually increase and resets to zero as a batch every 5 seconds.</p>
 <p></p>
@@ -1592,13 +1728,11 @@ define stream StockEventStream (symbol string, price float, volume int)
 define window StockEventWindow (symbol string, price float, volume int) cron('*/5 * * * * ?');
 
 @info(name = 'query0')
-from StockEventStream
-insert into StockEventWindow;
+from StockEventStream insert into StockEventWindow;
 
 @info(name = 'query1')
-from StockEventWindow 
-select symbol, sum(price) as totalPrice
-insert into OutputStream ;
+from StockEventWindow select symbol, sum(price) as totalPrice insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">The defined window will let the totalPrice to gradually increase and resets to zero as a batch every 5 seconds.</p>
@@ -1610,7 +1744,9 @@ insert into OutputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 delay(<INT|LONG|TIME> window.delay)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -1636,21 +1772,17 @@ delay(<INT|LONG|TIME> window.delay)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-define window delayWindow(symbol string, volume int) delay(1 hour);
-define stream PurchaseStream(symbol string, volume int);
-define stream DeliveryStream(symbol string);
-define stream OutputStream(symbol string);
 
-@info(name='query1') 
-from PurchaseStream
-select symbol, volume
-insert into delayWindow;
+define window delayWindow(symbol string, volume int) delay(1 hour); define stream PurchaseStream(symbol string, volume
+int); define stream DeliveryStream(symbol string); define stream OutputStream(symbol string);
 
-@info(name='query2') 
-from delayWindow join DeliveryStream
-on delayWindow.symbol == DeliveryStream.symbol
-select delayWindow.symbol
-insert into OutputStream;
+@info(name='query1')
+from PurchaseStream select symbol, volume insert into delayWindow;
+
+@info(name='query2')
+from delayWindow join DeliveryStream on delayWindow.symbol == DeliveryStream.symbol select delayWindow.symbol insert
+into OutputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">In this example, purchase events that arrive in the 'PurchaseStream' stream are directed to a delay window. At any given time, this delay window holds purchase events that have arrived within the last hour. These purchase events in the window are matched by the 'symbol' attribute, with delivery events that arrive in the 'DeliveryStream' stream. This monitors whether the delivery of products is done with a minimum delay of one hour after the purchase.</p>
@@ -1662,7 +1794,9 @@ insert into OutputStream;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 expression(<STRING> expression)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -1688,21 +1822,23 @@ expression(<STRING> expression)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 @info(name = 'query1')
 from StockEventWindow#window.expression('count()<=20')
-select symbol, sum(price) as price
-insert into OutputStream ;
+select symbol, sum(price) as price insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will retain last 20 events in a sliding manner.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
+
 @info(name = 'query1')
 from StockEventWindow#window.expression(
-       'sum(price) < 100 and eventTimestamp(last) - eventTimestamp(first) < 3000')
-select symbol, sum(price) as price
-insert into OutputStream ;
+'sum(price) < 100 and eventTimestamp(last) - eventTimestamp(first) < 3000')
+select symbol, sum(price) as price insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will retain the latest events having their sum(price) &lt; 100, and the <code>last</code> and <code>first</code> events are within 3 second difference.</p>
@@ -1714,9 +1850,11 @@ insert into OutputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 expressionBatch(<STRING|BOOL> expression)
 expressionBatch(<STRING|BOOL> expression, <BOOL> include.triggering.event)
 expressionBatch(<STRING|BOOL> expression, <BOOL> include.triggering.event, <BOOL> stream.current.event)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -1758,54 +1896,59 @@ expressionBatch(<STRING|BOOL> expression, <BOOL> include.triggering.event, <BOOL
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 @info(name = 'query1')
 from StockEventWindow#window.expressionBatch('count()<=20')
-select symbol, sum(price) as price
-insert into OutputStream ;
+select symbol, sum(price) as price insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Retain and output 20 events at a time as batch.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
+
 @info(name = 'query1')
 from StockEventWindow#window.expressionBatch(
-       'sum(price) < 100 and eventTimestamp(last) - eventTimestamp(first) < 3000')
-select symbol, sum(price) as price
-insert into OutputStream ;
+'sum(price) < 100 and eventTimestamp(last) - eventTimestamp(first) < 3000')
+select symbol, sum(price) as price insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Retain and output events having their sum(price) &lt; 100, and the <code>last</code> and <code>first</code> events are within 3 second difference as a batch.</p>
 <p></p>
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
+
 @info(name = 'query1')
 from StockEventWindow#window.expressionBatch(
-       'last.symbol==first.symbol')
-select symbol, sum(price) as price
-insert into OutputStream ;
+'last.symbol==first.symbol')
+select symbol, sum(price) as price insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Output events as a batch when a new symbol type arrives.</p>
 <p></p>
 <span id="example-4" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 4</span>
 ```
+
 @info(name = 'query1')
 from StockEventWindow#window.expressionBatch(
-       'flush', true)
-select symbol, sum(price) as price
-insert into OutputStream ;
+'flush', true)
+select symbol, sum(price) as price insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Output events as a batch when a flush attribute becomes <code>true</code>, the output batch will also contain the triggering event.</p>
 <p></p>
 <span id="example-5" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 5</span>
 ```
+
 @info(name = 'query1')
 from StockEventWindow#window.expressionBatch(
-       'flush', false, true)
-select symbol, sum(price) as price
-insert into OutputStream ;
+'flush', false, true)
+select symbol, sum(price) as price insert into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Arriving events are emitted as soon as they are arrived, and the retained events are expired when flush attribute becomes <code>true</code>, and the output batch will not contain the triggering event.</p>
@@ -1817,7 +1960,9 @@ insert into OutputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 externalTime(<LONG> timestamp, <INT|LONG|TIME> window.time)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -1851,16 +1996,16 @@ externalTime(<LONG> timestamp, <INT|LONG|TIME> window.time)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-define window cseEventWindow (symbol string, price float, volume int) externalTime(eventTime, 20 sec) output expired events;
+
+define window cseEventWindow (symbol string, price float, volume int) externalTime(eventTime, 20 sec) output expired
+events;
 
 @info(name = 'query0')
-from cseEventStream
-insert into cseEventWindow;
+from cseEventStream insert into cseEventWindow;
 
 @info(name = 'query1')
-from cseEventWindow
-select symbol, sum(price) as price
-insert expired events into outputStream ;
+from cseEventWindow select symbol, sum(price) as price insert expired events into outputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">processing events arrived within the last 20 seconds from the eventTime and output expired events.</p>
@@ -1872,10 +2017,13 @@ insert expired events into outputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 externalTimeBatch(<LONG> timestamp, <INT|LONG|TIME> window.time)
 externalTimeBatch(<LONG> timestamp, <INT|LONG|TIME> window.time, <INT|LONG|TIME> start.time)
 externalTimeBatch(<LONG> timestamp, <INT|LONG|TIME> window.time, <INT|LONG|TIME> start.time, <INT|LONG|TIME> timeout)
-externalTimeBatch(<LONG> timestamp, <INT|LONG|TIME> window.time, <INT|LONG|TIME> start.time, <INT|LONG|TIME> timeout, <BOOL> replace.with.batchtime)
+externalTimeBatch(<LONG> timestamp, <INT|LONG|TIME> window.time, <INT|LONG|TIME> start.time, <INT|LONG|TIME>
+timeout, <BOOL> replace.with.batchtime)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -1933,28 +2081,32 @@ externalTimeBatch(<LONG> timestamp, <INT|LONG|TIME> window.time, <INT|LONG|TIME>
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-define window cseEventWindow (symbol string, price float, volume int) externalTimeBatch(eventTime, 1 sec) output expired events;
-@info(name = 'query0')
-from cseEventStream
-insert into cseEventWindow;
-@info(name = 'query1')
-from cseEventWindow
-select symbol, sum(price) as price
-insert expired events into outputStream ;
+
+define window cseEventWindow (symbol string, price float, volume int) externalTimeBatch(eventTime, 1 sec) output expired
+events; @info(name = 'query0')
+from cseEventStream insert into cseEventWindow; @info(name = 'query1')
+from cseEventWindow select symbol, sum(price) as price insert expired events into outputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will processing events that arrive every 1 seconds from the eventTime.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
-define window cseEventWindow (symbol string, price float, volume int) externalTimeBatch(eventTime, 20 sec, 0) output expired events;
+
+define window cseEventWindow (symbol string, price float, volume int) externalTimeBatch(eventTime, 20 sec, 0) output
+expired events;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will processing events that arrive every 1 seconds from the eventTime. Starts on 0th millisecond of an hour.</p>
 <p></p>
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
-define window cseEventWindow (symbol string, price float, volume int) externalTimeBatch(eventTime, 2 sec, eventTimestamp, 100) output expired events;
+
+define window cseEventWindow (symbol string, price float, volume int) externalTimeBatch(eventTime, 2 sec,
+eventTimestamp, 100) output expired events;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will processing events that arrive every 2 seconds from the eventTim. Considers the first event's eventTimestamp value as startTime. Waits 100 milliseconds for the arrival of a new event before flushing current batch.</p>
@@ -1967,8 +2119,10 @@ define window cseEventWindow (symbol string, price float, volume int) externalTi
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 frequent(<INT> event.count)
 frequent(<INT> event.count, <STRING> attribute)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2002,20 +2156,22 @@ frequent(<INT> event.count, <STRING> attribute)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 @info(name = 'query1')
 from purchase[price >= 30]#window.frequent(2)
-select cardNo, price
-insert all events into PotentialFraud;
+select cardNo, price insert all events into PotentialFraud;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns the 2 most frequent events.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
+
 @info(name = 'query1')
 from purchase[price >= 30]#window.frequent(2, cardNo)
-select cardNo, price
-insert all events into PotentialFraud;
+select cardNo, price insert all events into PotentialFraud;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will returns the 2 latest events with the most frequently appeared card numbers.</p>
@@ -2027,7 +2183,9 @@ insert all events into PotentialFraud;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 length(<INT> window.length)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2053,16 +2211,14 @@ length(<INT> window.length)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 define window StockEventWindow (symbol string, price float, volume int) length(10) output all events;
 
 @info(name = 'query0')
-from StockEventStream
-insert into StockEventWindow;
-@info(name = 'query1')
+from StockEventStream insert into StockEventWindow; @info(name = 'query1')
 
-from StockEventWindow
-select symbol, sum(price) as price
-insert all events into outputStream ;
+from StockEventWindow select symbol, sum(price) as price insert all events into outputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will process last 10 events in a sliding manner.</p>
@@ -2074,8 +2230,10 @@ insert all events into outputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 lengthBatch(<INT> window.length)
 lengthBatch(<INT> window.length, <BOOL> stream.current.event)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2109,41 +2267,42 @@ lengthBatch(<INT> window.length, <BOOL> stream.current.event)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 define stream InputEventStream (symbol string, price float, volume int);
 
 @info(name = 'query1')
 from InputEventStream#lengthBatch(10)
-select symbol, sum(price) as price 
-insert into OutputStream;
+select symbol, sum(price) as price insert into OutputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This collect and process 10 events as a batch and output them.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
+
 define stream InputEventStream (symbol string, price float, volume int);
 
 @info(name = 'query1')
 from InputEventStream#lengthBatch(10, true)
-select symbol, sum(price) as sumPrice 
-insert into OutputStream;
+select symbol, sum(price) as sumPrice insert into OutputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This window sends the arriving events directly to the output letting the <code>sumPrice</code> to increase gradually, after every 10 events it clears the window as a batch and resets the <code>sumPrice</code> to zero.</p>
 <p></p>
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
-define stream InputEventStream (symbol string, price float, volume int);
-define window StockEventWindow (symbol string, price float, volume int) lengthBatch(10) output all events;
+
+define stream InputEventStream (symbol string, price float, volume int); define window StockEventWindow (symbol string,
+price float, volume int) lengthBatch(10) output all events;
 
 @info(name = 'query0')
-from InputEventStream
-insert into StockEventWindow;
+from InputEventStream insert into StockEventWindow;
 
 @info(name = 'query1')
-from StockEventWindow
-select symbol, sum(price) as price
-insert all events into OutputStream ;
+from StockEventWindow select symbol, sum(price) as price insert all events into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This uses an defined window to process 10 events  as a batch and output all events.</p>
@@ -2156,9 +2315,11 @@ insert all events into OutputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 lossyFrequent(<DOUBLE> support.threshold)
 lossyFrequent(<DOUBLE> support.threshold, <DOUBLE> error.bound)
 lossyFrequent(<DOUBLE> support.threshold, <DOUBLE> error.bound, <STRING> attribute)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2200,30 +2361,26 @@ lossyFrequent(<DOUBLE> support.threshold, <DOUBLE> error.bound, <STRING> attribu
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-define stream purchase (cardNo string, price float);
-define window purchaseWindow (cardNo string, price float) lossyFrequent(0.1, 0.01);
-@info(name = 'query0')
+
+define stream purchase (cardNo string, price float); define window purchaseWindow (cardNo string, price float)
+lossyFrequent(0.1, 0.01); @info(name = 'query0')
 from purchase[price >= 30]
-insert into purchaseWindow;
-@info(name = 'query1')
-from purchaseWindow
-select cardNo, price
-insert all events into PotentialFraud;
+insert into purchaseWindow; @info(name = 'query1')
+from purchaseWindow select cardNo, price insert all events into PotentialFraud;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">lossyFrequent(0.1, 0.01) returns all the events of which the current frequency exceeds 0.1, with an error bound of 0.01.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
-define stream purchase (cardNo string, price float);
-define window purchaseWindow (cardNo string, price float) lossyFrequent(0.3, 0.05, cardNo);
-@info(name = 'query0')
+
+define stream purchase (cardNo string, price float); define window purchaseWindow (cardNo string, price float)
+lossyFrequent(0.3, 0.05, cardNo); @info(name = 'query0')
 from purchase[price >= 30]
-insert into purchaseWindow;
-@info(name = 'query1')
-from purchaseWindow
-select cardNo, price
-insert all events into PotentialFraud;
+insert into purchaseWindow; @info(name = 'query1')
+from purchaseWindow select cardNo, price insert all events into PotentialFraud;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">lossyFrequent(0.3, 0.05, cardNo) returns all the events of which the cardNo attributes frequency exceeds 0.3, with an error bound of 0.05.</p>
@@ -2235,9 +2392,11 @@ insert all events into PotentialFraud;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 session(<INT|LONG|TIME> session.gap)
 session(<INT|LONG|TIME> session.gap, <STRING> session.key)
 session(<INT|LONG|TIME> session.gap, <STRING> session.key, <INT|LONG|TIME> allowed.latency)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2279,26 +2438,26 @@ session(<INT|LONG|TIME> session.gap, <STRING> session.key, <INT|LONG|TIME> allow
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 define stream PurchaseEventStream (user string, item_number int, price float, quantity int);
 
-@info(name='query1) 
-from PurchaseEventStream#window.session(5 sec, user) 
-select user, sum(quantity) as totalQuantity, sum(price) as totalPrice 
-group by user 
-insert into OutputStream;
+@info(name='query1)
+from PurchaseEventStream#window.session(5 sec, user)
+select user, sum(quantity) as totalQuantity, sum(price) as totalPrice group by user insert into OutputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">From the events arriving at the PurchaseEventStream, a session window with 5 seconds session gap is processed based on 'user' attribute as the session group identification key. All events falling into the same session are aggregated based on <code>user</code> attribute, and outputted to the OutputStream.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
+
 define stream PurchaseEventStream (user string, item_number int, price float, quantity int);
 
-@info(name='query2) 
-from PurchaseEventStream#window.session(5 sec, user, 2 sec) 
-select user, sum(quantity) as totalQuantity, sum(price) as totalPrice 
-group by user 
-insert into OutputStream;
+@info(name='query2)
+from PurchaseEventStream#window.session(5 sec, user, 2 sec)
+select user, sum(quantity) as totalQuantity, sum(price) as totalPrice group by user insert into OutputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">From the events arriving at the PurchaseEventStream, a session window with 5 seconds session gap is processed based on 'user' attribute as the session group identification key. This session window is kept active for 2 seconds after the session expiry to capture late (out of order) event arrivals. If the event timestamp falls in to the last session the session is reactivated. Then all events falling into the same session are aggregated based on <code>user</code> attribute, and outputted to the OutputStream.</p>
@@ -2310,9 +2469,12 @@ insert into OutputStream;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 sort(<INT> window.length, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> attribute)
 sort(<INT> window.length, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> attribute, <STRING> order, <STRING> ...)
-sort(<INT> window.length, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> attribute, <STRING> order, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> attribute, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> ...)
+sort(<INT> window.length, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> attribute, <STRING> order, <
+STRING|DOUBLE|INT|LONG|FLOAT|LONG> attribute, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> ...)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2354,15 +2516,12 @@ sort(<INT> window.length, <STRING|DOUBLE|INT|LONG|FLOAT|LONG> attribute, <STRING
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-define stream cseEventStream (symbol string, price float, volume long);
-define window cseEventWindow (symbol string, price float, volume long) sort(2,volume, 'asc');
-@info(name = 'query0')
-from cseEventStream
-insert into cseEventWindow;
-@info(name = 'query1')
-from cseEventWindow
-select volume
-insert all events into outputStream ;
+
+define stream cseEventStream (symbol string, price float, volume long); define window cseEventWindow (symbol string,
+price float, volume long) sort(2,volume, 'asc'); @info(name = 'query0')
+from cseEventStream insert into cseEventWindow; @info(name = 'query1')
+from cseEventWindow select volume insert all events into outputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">sort(5, price, 'asc') keeps the events sorted by price in the ascending order. Therefore, at any given time, the window contains the 5 lowest prices.</p>
@@ -2374,7 +2533,9 @@ insert all events into outputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 time(<INT|LONG|TIME> window.time)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2400,14 +2561,11 @@ time(<INT|LONG|TIME> window.time)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-define window cseEventWindow (symbol string, price float, volume int) time(20) output all events;
-@info(name = 'query0')
-from cseEventStream
-insert into cseEventWindow;
-@info(name = 'query1')
-from cseEventWindow
-select symbol, sum(price) as price
-insert all events into outputStream ;
+
+define window cseEventWindow (symbol string, price float, volume int) time(20) output all events; @info(name = 'query0')
+from cseEventStream insert into cseEventWindow; @info(name = 'query1')
+from cseEventWindow select symbol, sum(price) as price insert all events into outputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This will processing events that arrived within the last 20 milliseconds.</p>
@@ -2419,10 +2577,12 @@ insert all events into outputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 timeBatch(<INT|LONG|TIME> window.time)
 timeBatch(<INT|LONG|TIME> window.time, <INT|LONG> start.time)
 timeBatch(<INT|LONG|TIME> window.time, <BOOL> stream.current.event)
 timeBatch(<INT|LONG|TIME> window.time, <INT|LONG> start.time, <BOOL> stream.current.event)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2464,41 +2624,42 @@ timeBatch(<INT|LONG|TIME> window.time, <INT|LONG> start.time, <BOOL> stream.curr
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 define stream InputEventStream (symbol string, price float, volume int);
 
 @info(name = 'query1')
 from InputEventStream#timeBatch(20 sec)
-select symbol, sum(price) as price 
-insert into OutputStream;
+select symbol, sum(price) as price insert into OutputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This collect and process incoming events as a batch every 20 seconds and output them.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
+
 define stream InputEventStream (symbol string, price float, volume int);
 
 @info(name = 'query1')
 from InputEventStream#timeBatch(20 sec, true)
-select symbol, sum(price) as sumPrice 
-insert into OutputStream;
+select symbol, sum(price) as sumPrice insert into OutputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This window sends the arriving events directly to the output letting the <code>sumPrice</code> to increase gradually and on every 20 second interval it clears the window as a batch resetting the <code>sumPrice</code> to zero.</p>
 <p></p>
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
-define stream InputEventStream (symbol string, price float, volume int);
-define window StockEventWindow (symbol string, price float, volume int) timeBatch(20 sec) output all events;
+
+define stream InputEventStream (symbol string, price float, volume int); define window StockEventWindow (symbol string,
+price float, volume int) timeBatch(20 sec) output all events;
 
 @info(name = 'query0')
-from InputEventStream
-insert into StockEventWindow;
+from InputEventStream insert into StockEventWindow;
 
 @info(name = 'query1')
-from StockEventWindow
-select symbol, sum(price) as price
-insert all events into OutputStream ;
+from StockEventWindow select symbol, sum(price) as price insert all events into OutputStream ;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">This uses an defined window to process events arrived every 20 seconds as a batch and output all events.</p>
@@ -2510,7 +2671,9 @@ insert all events into OutputStream ;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 timeLength(<INT|LONG|TIME> window.time, <INT> window.length)
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2544,14 +2707,12 @@ timeLength(<INT|LONG|TIME> window.time, <INT> window.length)
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-define stream cseEventStream (symbol string, price float, volume int);
-define window cseEventWindow (symbol string, price float, volume int) timeLength(2 sec, 10);
-@info(name = 'query0')
-from cseEventStream
-insert into cseEventWindow;
-@info(name = 'query1')
-from cseEventWindow select symbol, price, volume
-insert all events into outputStream;
+
+define stream cseEventStream (symbol string, price float, volume int); define window cseEventWindow (symbol string,
+price float, volume int) timeLength(2 sec, 10); @info(name = 'query0')
+from cseEventStream insert into cseEventWindow; @info(name = 'query1')
+from cseEventWindow select symbol, price, volume insert all events into outputStream;
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">window.timeLength(2 sec, 10) holds the last 10 events that arrived during last 2 seconds and gets updated for every event arrival and expiry.</p>
@@ -2565,7 +2726,9 @@ insert all events into outputStream;
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 @sink(type="inMemory", topic="<STRING>", @map(...)))
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2591,8 +2754,10 @@ insert all events into outputStream;
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 @sink(type='inMemory', topic='Stocks', @map(type='passThrough'))
 define stream StocksStream (symbol string, price float, volume long);
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Here the <code>StocksStream</code> uses inMemory sink to emit the Siddhi events to all the inMemory sources deployed in the same JVM and subscribed to the topic <code>Stocks</code>.</p>
@@ -2604,7 +2769,9 @@ define stream StocksStream (symbol string, price float, volume long);
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 @sink(type="log", priority="<STRING>", prefix="<STRING>", @map(...)))
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2638,32 +2805,40 @@ define stream StocksStream (symbol string, price float, volume long);
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-@sink(type='log', prefix='My Log', priority='DEBUG') 
+
+@sink(type='log', prefix='My Log', priority='DEBUG')
 define stream BarStream (symbol string, price float, volume long)
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">In this example BarStream uses log sink and the prefix is given as My Log. Also the priority is set to DEBUG.</p>
 <p></p>
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
-@sink(type='log', priority='DEBUG') 
+
+@sink(type='log', priority='DEBUG')
 define stream BarStream (symbol string, price float, volume long)
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">In this example BarStream uses log sink and the priority is set to DEBUG. User has not specified prefix so the default prefix will be in the form &lt;Siddhi App Name&gt; : &lt;Stream Name&gt;</p>
 <p></p>
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
-@sink(type='log', prefix='My Log') 
+
+@sink(type='log', prefix='My Log')
 define stream BarStream (symbol string, price float, volume long)
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">In this example BarStream uses log sink and the prefix is given as My Log. User has not given a priority so it will be set to default INFO.</p>
 <p></p>
 <span id="example-4" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 4</span>
 ```
-@sink(type='log') 
+
+@sink(type='log')
 define stream BarStream (symbol string, price float, volume long)
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">In this example BarStream uses log sink. The user has not given prefix or priority so they will be set to their default values.</p>
@@ -2677,14 +2852,18 @@ define stream BarStream (symbol string, price float, volume long)
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 @sink(..., @map(type="passThrough")
+
 ```
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 @sink(type='inMemory', @map(type='passThrough'))
 define stream BarStream (symbol string, price float, volume long);
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">In the following example BarStream uses passThrough outputmapper which emit Siddhi event directly without any transformation into sink.</p>
@@ -2698,7 +2877,9 @@ define stream BarStream (symbol string, price float, volume long);
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 @source(type="inMemory", topic="<STRING>", @map(...)))
+
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -2724,8 +2905,10 @@ define stream BarStream (symbol string, price float, volume long);
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 @source(type='inMemory', topic='Stocks', @map(type='passThrough'))
 define stream StocksStream (symbol string, price float, volume long);
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">Here the <code>StocksStream</code> uses inMemory source to consume events published on the topic <code>Stocks</code> by the inMemory sinks deployed in the same JVM.</p>
@@ -2739,14 +2922,18 @@ define stream StocksStream (symbol string, price float, volume long);
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 
 ```
+
 @source(..., @map(type="passThrough")
+
 ```
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
+
 @source(type='tcp', @map(type='passThrough'))
 define stream BarStream (symbol string, price float, volume long);
+
 ```
 <p></p>
 <p style="word-wrap: break-word;margin: 0;">In this example BarStream uses passThrough inputmapper which passes the received Siddhi event directly without any transformation into source.</p>

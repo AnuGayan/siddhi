@@ -599,7 +599,7 @@ public class PatternQueryTestCase {
                                                 State.stream(InputStream.stream("e2", "Stream1").filter(Expression
                                                         .compare(Expression.variable("price").
                                                                         ofFunction("f1").ofInnerStream("e2", Variable
-                                                                        .LAST),
+                                                                                .LAST),
                                                                 Compare.Operator.GREATER_THAN_EQUAL,
                                                                 Expression.value(20)))),
                                                 3, 5),

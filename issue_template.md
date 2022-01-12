@@ -3,7 +3,7 @@
 
 **Affected Siddhi Version:**
 
-**OS, DB, other environment details and versions:**    
+**OS, DB, other environment details and versions:**
 
 **Steps to reproduce:**
 <!-- We would appreciate it if you can provide a testcase :), this help us reproduce the issue much faster -->

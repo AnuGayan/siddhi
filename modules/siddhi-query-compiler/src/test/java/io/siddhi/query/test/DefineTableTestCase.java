@@ -74,7 +74,7 @@ public class DefineTableTestCase {
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
                         attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("from").element
-                        ("datasource", "MyDatabase").element("CUSTOM")).toString(),
+                                ("datasource", "MyDatabase").element("CUSTOM")).toString(),
                 streamDefinition.toString());
     }
 
