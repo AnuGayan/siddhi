@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SnapshotService {
 
@@ -197,7 +198,7 @@ public class SnapshotService {
         try {
             this.executionPlanContext.getThreadBarrier().lock();
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
-                snapshotableList = entry.getValue();
+                snapshotableList = new CopyOnWriteArrayList(entry.getValue());
                 for (Snapshotable snapshotable : snapshotableList) {
                     if (snapshots != null) {
                         snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
