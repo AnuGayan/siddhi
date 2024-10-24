@@ -30,10 +30,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SnapshotService {
 
-    private HashMap<String, List<Snapshotable>> snapshotableMap = new HashMap<String, List<Snapshotable>>();
+    private Map<String, List<Snapshotable>> snapshotableMap = new ConcurrentHashMap<String, List<Snapshotable>>();
     private static final Log LOGGER = LogFactory.getLog(SnapshotService.class);
     private static final String SNAPSHOTABLE_STATES_KEY = "snapshotable.states";
     private static final SnapshotableElementsHolder snapshotableElementsHolder = new SnapshotableElementsHolder();
