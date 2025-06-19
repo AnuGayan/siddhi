@@ -19,10 +19,12 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.persistence.RedisConnectionManager; // Added
+import org.wso2.siddhi.core.util.kvstore.KeyValueStoreClient; // Changed
+import org.wso2.siddhi.core.util.kvstore.KeyValueStoreManager; // Changed
+import org.wso2.siddhi.core.util.kvstore.KeyValueStoreException; // Added
 import org.wso2.siddhi.query.api.definition.Attribute;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisException;
+// import redis.clients.jedis.Jedis; // Removed
+// import redis.clients.jedis.exceptions.JedisException; // Removed
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +37,9 @@ public class CountAttributeAggregator extends AttributeAggregator {
     private static final Logger log = LoggerFactory.getLogger(CountAttributeAggregator.class);
     private static Attribute.Type type = Attribute.Type.LONG;
     private long value = 0L; // Local fallback counter
-    // private Jedis jedis; // Removed: Will use RedisConnectionManager
-    private String redisKey;
+    private KeyValueStoreClient kvStoreClient; // Added
+    private String kvStoreType; // Added
+    private String kvStoreKey; // Renamed from redisKey
     private String elementId;
 
 
@@ -49,16 +52,35 @@ public class CountAttributeAggregator extends AttributeAggregator {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        this.redisKey = "siddhi:count:" + executionPlanContext.getName() + ":" + elementId;
-        // Jedis connection is now managed by RedisConnectionManager, no direct connect here.
-        // We can try to get a connection here to see if pool is usable, but not mandatory.
-        // For instance, to log if Redis is available at init time:
-        Jedis tempJedis = RedisConnectionManager.getJedis();
-        if (tempJedis == null) {
-            log.warn("CountAttributeAggregator (key: {}): Failed to get Jedis connection from pool during init. May operate in fallback mode.", redisKey);
-        } else {
-            log.info("CountAttributeAggregator (key: {}): Successfully initialized and can connect to Redis.", redisKey);
-            RedisConnectionManager.closeJedis(tempJedis);
+        this.kvStoreKey = "siddhi:count:" + executionPlanContext.getName() + ":" + elementId; // Renamed redisKey
+
+        this.kvStoreType = System.getProperty(
+                KeyValueStoreManager.KEYVALUE_STORE_TYPE_PROPERTY,
+                KeyValueStoreManager.DEFAULT_KV_STORE_TYPE
+        ).toLowerCase();
+
+        try {
+            this.kvStoreClient = KeyValueStoreManager.getClient();
+            // The getClient() method now calls connect() on the adapter.
+            // We can additionally check isConnected() if desired, but connect() should throw if it fails critically.
+            if (this.kvStoreClient != null && this.kvStoreClient.isConnected()) {
+                log.info("KeyValueStoreClient of type '{}' initialized and connected for aggregator with key '{}'.",
+                        kvStoreType, kvStoreKey);
+            } else {
+                // This case might occur if getClient() returns a client that fails isConnected() immediately,
+                // or if getClient() itself didn't throw but returned null (though current getClient() throws).
+                log.warn("KeyValueStoreClient obtained for type '{}', but isConnected() is false for key '{}'. Aggregator will use fallback.",
+                        kvStoreType, kvStoreKey);
+                this.kvStoreClient = null; // Ensure fallback
+            }
+        } catch (KeyValueStoreException e) {
+            log.error("Failed to initialize KeyValueStoreClient for aggregator with key '{}'. Reason: {}. Operating in fallback mode.",
+                    kvStoreKey, e.getMessage(), e);
+            this.kvStoreClient = null; // Ensure fallback
+        } catch (Exception e) { // Catch any other unexpected exceptions during client init
+            log.error("Unexpected error initializing KeyValueStoreClient for aggregator with key '{}'. Operating in fallback mode.",
+                    kvStoreKey, e);
+            this.kvStoreClient = null; // Ensure fallback
         }
     }
 
@@ -68,21 +90,22 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
-        Jedis jedis = RedisConnectionManager.getJedis();
-        if (jedis != null) {
+        if (kvStoreClient != null && kvStoreClient.isConnected()) {
             try {
-                Long redisValue = jedis.incr(redisKey);
-                // Update local value as well to keep it in sync for potential future fallback
-                value = redisValue;
-                return redisValue;
-            } catch (JedisException e) {
-                log.error("Redis error in processAdd for key {}. Falling back to local counter.", redisKey, e);
-                // Fallback logic is handled after finally
-            } finally {
-                RedisConnectionManager.closeJedis(jedis);
+                long newValue = kvStoreClient.increment(kvStoreKey);
+                value = newValue; // Sync local fallback
+                return newValue;
+            } catch (KeyValueStoreException e) {
+                log.error("Error incrementing count in Key-Value store for key '{}'. Falling back to local counter. Error: {}",
+                        kvStoreKey, e.getMessage());
+                // Potentially mark client as disconnected for a while or just fallback for this op
             }
         } else {
-            log.warn("Could not get Jedis connection for processAdd (key {}). Using local counter.", redisKey);
+            if (kvStoreClient == null) {
+                log.trace("processAdd: KeyValueStoreClient is null for key '{}'. Using local counter.", kvStoreKey);
+            } else { // Implies !kvStoreClient.isConnected()
+                log.warn("processAdd: KeyValueStoreClient not connected for key '{}'. Using local counter.", kvStoreKey);
+            }
         }
         // Fallback to local counter
         value++;
@@ -99,20 +122,21 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object data) {
-        Jedis jedis = RedisConnectionManager.getJedis();
-        if (jedis != null) {
+        if (kvStoreClient != null && kvStoreClient.isConnected()) {
             try {
-                Long redisValue = jedis.decr(redisKey);
-                // Update local value
-                value = redisValue;
-                return redisValue;
-            } catch (JedisException e) {
-                log.error("Redis error in processRemove for key {}. Falling back to local counter.", redisKey, e);
-            } finally {
-                RedisConnectionManager.closeJedis(jedis);
+                long newValue = kvStoreClient.decrement(kvStoreKey);
+                value = newValue; // Sync local fallback
+                return newValue;
+            } catch (KeyValueStoreException e) {
+                log.error("Error decrementing count in Key-Value store for key '{}'. Falling back to local counter. Error: {}",
+                        kvStoreKey, e.getMessage());
             }
         } else {
-            log.warn("Could not get Jedis connection for processRemove (key {}). Using local counter.", redisKey);
+            if (kvStoreClient == null) {
+                log.trace("processRemove: KeyValueStoreClient is null for key '{}'. Using local counter.", kvStoreKey);
+            } else {
+                log.warn("processRemove: KeyValueStoreClient not connected for key '{}'. Using local counter.", kvStoreKey);
+            }
         }
         // Fallback to local counter
         value--;
@@ -127,19 +151,21 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object reset() {
-        Jedis jedis = RedisConnectionManager.getJedis();
-        if (jedis != null) {
+        if (kvStoreClient != null && kvStoreClient.isConnected()) {
             try {
-                jedis.set(redisKey, "0");
-                value = 0L; // Update local value
+                kvStoreClient.set(kvStoreKey, "0"); // Set to 0 for consistency
+                value = 0L; // Sync local fallback
                 return 0L;
-            } catch (JedisException e) {
-                log.error("Redis error in reset for key {}. Falling back to local counter.", redisKey, e);
-            } finally {
-                RedisConnectionManager.closeJedis(jedis);
+            } catch (KeyValueStoreException e) {
+                log.error("Error resetting count in Key-Value store for key '{}'. Falling back to local counter. Error: {}",
+                        kvStoreKey, e.getMessage());
             }
         } else {
-            log.warn("Could not get Jedis connection for reset (key {}). Using local counter.", redisKey);
+            if (kvStoreClient == null) {
+                log.trace("reset: KeyValueStoreClient is null for key '{}'. Using local counter.", kvStoreKey);
+            } else {
+                log.warn("reset: KeyValueStoreClient not connected for key '{}'. Using local counter.", kvStoreKey);
+            }
         }
         // Fallback to local counter
         value = 0L;
@@ -153,64 +179,73 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public void stop() {
-        // No longer need to close jedis connection here, managed by pool.
-        // If RedisConnectionManager had a per-aggregator cleanup hook, it could go here.
+        if (kvStoreClient != null) {
+            try {
+                kvStoreClient.disconnect();
+                log.info("KeyValueStoreClient disconnected for aggregator with key '{}'.", kvStoreKey);
+            } catch (KeyValueStoreException e) {
+                log.error("Error disconnecting KeyValueStoreClient for key '{}'. Error: {}", kvStoreKey, e.getMessage());
+            } finally {
+                kvStoreClient = null; // Release the client
+            }
+        }
     }
 
     @Override
     public Object[] currentState() {
-        Jedis jedis = RedisConnectionManager.getJedis();
-        if (jedis != null) {
+        if (kvStoreClient != null && kvStoreClient.isConnected()) {
             try {
-                String redisValueStr = jedis.get(redisKey);
-                if (redisValueStr != null) {
-                    long redisValue = Long.parseLong(redisValueStr);
-                    value = redisValue; // Sync local fallback
-                    return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", redisValue)};
+                String kvValueStr = kvStoreClient.get(kvStoreKey);
+                if (kvValueStr != null) {
+                    long kvValue = Long.parseLong(kvValueStr);
+                    value = kvValue; // Sync local fallback
+                    return new Object[]{new AbstractMap.SimpleEntry<>("Value", kvValue)};
                 } else {
-                    // Key doesn't exist in Redis, could be initial state or after a delete
-                    // Use local value, and potentially set it in Redis if we want to ensure consistency on first read
-                    // For now, assume local 'value' is the source of truth if Redis has no key.
-                    // Or, more consistently, if key is not in Redis, it implies 0 for a counter.
-                    log.warn("Key {} not found in Redis for currentState. Assuming 0 and attempting to set local value.", redisKey);
-                    value = 0L; // Default for a counter if not found
-                                // Optionally, set this back to Redis: jedis.set(redisKey, "0");
+                    // Key doesn't exist in KV store. For a counter, this implies a value of 0.
+                    // Sync local state to this understanding.
+                    log.debug("Key '{}' not found in Key-Value store for currentState. Assuming 0.", kvStoreKey);
+                    value = 0L;
                 }
             } catch (NumberFormatException e) {
-                log.error("Redis value for key {} is not a valid Long. Falling back to local counter.", redisKey, e);
-                // Fallback to local value below
-            } catch (JedisException e) {
-                log.error("Redis error in currentState for key {}. Falling back to local counter.", redisKey, e);
-                // Fallback to local value below
-            } finally {
-                RedisConnectionManager.closeJedis(jedis);
+                log.error("Value for key '{}' in Key-Value store is not a valid Long. Falling back to local counter. Error: {}",
+                        kvStoreKey, e.getMessage());
+                // Local 'value' will be used below
+            } catch (KeyValueStoreException e) {
+                log.error("Error reading current state from Key-Value store for key '{}'. Falling back to local counter. Error: {}",
+                        kvStoreKey, e.getMessage());
+                // Local 'value' will be used below
             }
         } else {
-            log.warn("Could not get Jedis connection for currentState (key {}). Using local counter.", redisKey);
+            if (kvStoreClient == null) {
+                log.trace("currentState: KeyValueStoreClient is null for key '{}'. Using local counter.", kvStoreKey);
+            } else {
+                log.warn("currentState: KeyValueStoreClient not connected for key '{}'. Using local counter.", kvStoreKey);
+            }
         }
-        // Fallback to local counter (either from Redis error, null jedis, or if key not found and not explicitly set to 0)
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value)};
+        // Fallback to local counter
+        return new Object[]{new AbstractMap.SimpleEntry<>("Value", value)};
     }
 
     @Override
     public void restoreState(Object[] state) {
         Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
         long restoredValue = (Long) stateEntry.getValue();
-        value = restoredValue; // Always update local value first
+        value = restoredValue; // Always update local value first, it's the ultimate fallback.
 
-        Jedis jedis = RedisConnectionManager.getJedis();
-        if (jedis != null) {
+        if (kvStoreClient != null && kvStoreClient.isConnected()) {
             try {
-                jedis.set(redisKey, String.valueOf(restoredValue));
-                log.info("Successfully restored state for key {} to {} in Redis.", redisKey, restoredValue);
-            } catch (JedisException e) {
-                log.error("Redis error in restoreState for key {}. State restored to local counter only.", redisKey, e);
-                // Local value is already set
-            } finally {
-                RedisConnectionManager.closeJedis(jedis);
+                kvStoreClient.set(kvStoreKey, String.valueOf(restoredValue));
+                log.info("Successfully restored state for key '{}' to {} in Key-Value store.", kvStoreKey, restoredValue);
+            } catch (KeyValueStoreException e) {
+                log.error("Error restoring state to Key-Value store for key '{}'. State only restored to local counter. Error: {}",
+                        kvStoreKey, e.getMessage());
             }
         } else {
-            log.warn("Could not get Jedis connection for restoreState (key {}). State restored to local counter only.", redisKey);
+            if (kvStoreClient == null) {
+                log.warn("restoreState: KeyValueStoreClient is null for key '{}'. State restored to local counter only.", kvStoreKey);
+            } else {
+                log.warn("restoreState: KeyValueStoreClient not connected for key '{}'. State restored to local counter only.", kvStoreKey);
+            }
         }
     }
 }
