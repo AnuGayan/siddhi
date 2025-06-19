@@ -73,6 +73,11 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.7.0</version> <!-- Use a recent stable version -->
+        </dependency>
     </dependencies>
 
     <build>

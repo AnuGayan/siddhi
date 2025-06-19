@@ -81,6 +81,35 @@ System Requirements
 4. To build Siddhi CEP from the Source distribution, it is necessary that you have
    JDK 1.7 version or later and Maven 3.0.4 or later
 
+## Configuration
+
+### Redis Configuration for CountAttributeAggregator
+
+The `CountAttributeAggregator` can be configured to use Redis for distributed counting. This is useful in scaled-out deployments where multiple Siddhi instances need to share a common count. Siddhi now utilizes a shared Redis connection pool (`RedisConnectionManager`) for interactions with Redis when using `CountAttributeAggregator`, which improves efficiency and resource management compared to individual connections.
+
+The following Java system properties are used by the `RedisConnectionManager` to configure the connection pool's target Redis server:
+
+*   `redis.host`: The hostname or IP address of the Redis server.
+    *   Default: `localhost`
+*   `redis.port`: The port number of the Redis server.
+    *   Default: `6379`
+
+**Example:**
+
+To set these properties when running your Siddhi application, you can pass them as command-line arguments to the Java Virtual Machine (JVM):
+
+```bash
+java -Dredis.host=your-redis-server -Dredis.port=6380 -jar your-siddhi-app.jar
+```
+
+Replace `your-redis-server` with the actual hostname or IP of your Redis instance and `6380` with its port if it's not the default.
+
+If Redis is not configured (i.e., system properties are not set and it defaults to a non-running instance) or if the connection pool fails to connect, the `CountAttributeAggregator` will fall back to an in-memory counter for that specific instance. The Redis key used for storing the count is automatically generated and is unique per aggregator instance, typically following the pattern `siddhi:count:<executionPlanName>:<elementId>`.
+
+**Connection Pool Configuration:**
+
+The internal Redis connection pool is configured with reasonable default settings for performance and reliability (e.g., for maximum connections, idle connections, connection testing). These pool-specific settings are not typically exposed via external system properties and are managed internally. For most use cases, these defaults should suffice. If advanced tuning of the pool is required, it would involve modifying the `RedisConnectionManager` source code.
+
 ## Questions 
 * Questions are welcomed & we are happy to help you integrate Siddhi to your project :)
 * Post your questions on http://stackoverflow.com/ tagging ["siddhi"] (http://stackoverflow.com/search?q=siddhi)
