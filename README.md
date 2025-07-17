@@ -85,62 +85,34 @@ System Requirements
 
 ### Key-Value Store Configuration for CountAttributeAggregator
 
-The `CountAttributeAggregator` can be configured to use an external key-value store for distributed counting. This is particularly useful in scaled-out deployments where multiple Siddhi instances need to share a common count. Siddhi uses a `KeyValueStoreManager` to select and configure the appropriate client (e.g., for Redis or Valkey) based on system properties. Both Redis and Valkey integrations utilize connection pooling for efficiency and resource management.
+The `CountAttributeAggregator` can be configured to use an external key-value store for distributed counting. This is particularly useful in scaled-out deployments where multiple Siddhi instances need to share a common count. Siddhi uses a central `KVStoreManager` to provide a shared, pooled client for accessing the store.
 
-The primary system property to select the key-value store type is:
+The following Java system properties are used to configure the connection:
 
-*   `siddhi.kvstore.type`: Specifies the type of key-value store to use.
-    *   Valid values:
-        *   `"redis"` (Default): Uses the Redis client.
-        *   `"valkey"`: Uses the Valkey client.
-    *   If this property is not set, Siddhi defaults to using "redis".
-
-Based on the selected type, the following additional system properties are used:
-
-#### Redis Configuration
-
-These properties are applicable if `siddhi.kvstore.type` is set to `"redis"` or is not set (defaulting to Redis). They are used by the underlying `RedisConnectionManager` to configure its connection pool.
-
-*   `redis.host`: The hostname or IP address of the Redis server.
+*   `siddhi.kvstore.host`: The hostname or IP address of the key-value server.
     *   Default: `localhost`
-*   `redis.port`: The port number of the Redis server.
+*   `siddhi.kvstore.port`: The port number of the key-value server.
     *   Default: `6379`
 
-#### Valkey Configuration
+**Note on Compatibility:** The underlying client is `valkey-java` (a fork of Jedis), which is compatible with both Redis and Valkey servers. You can point the host and port configuration to a server of either type.
 
-These properties are applicable if `siddhi.kvstore.type` is set to `"valkey"`. They are used by the `ValkeyClientAdapter`.
-
-*   `valkey.host`: The hostname or IP address of the Valkey server.
-    *   Default: `localhost`
-*   `valkey.port`: The port number of the Valkey server.
-    *   Default: `6379` (same as Redis)
-
-**Examples:**
+**Example:**
 
 To set these properties when running your Siddhi application, you can pass them as command-line arguments to the Java Virtual Machine (JVM):
 
-*   **Using Redis (default):**
-    ```bash
-    java -Dredis.host=your-redis-server -Dredis.port=6380 -jar your-siddhi-app.jar
-    ```
-*   **Explicitly selecting Redis:**
-    ```bash
-    java -Dsiddhi.kvstore.type=redis -Dredis.host=your-redis-server -Dredis.port=6380 -jar your-siddhi-app.jar
-    ```
-*   **Selecting Valkey:**
-    ```bash
-    java -Dsiddhi.kvstore.type=valkey -Dvalkey.host=your-valkey-server -Dvalkey.port=6379 -jar your-siddhi-app.jar
-    ```
+```bash
+java -Dsiddhi.kvstore.host=your-kv-server -Dsiddhi.kvstore.port=6379 -jar your-siddhi-app.jar
+```
 
-Replace `your-redis-server` or `your-valkey-server` with the actual hostname or IP of your instance and the respective port if it's not the default.
+Replace `your-kv-server` with the actual hostname or IP of your Redis or Valkey instance.
 
 **Fallback Behavior:**
 
-If the selected key-value store is not configured correctly (e.g., wrong host/port, server unavailable) or if the connection/pool fails, the `CountAttributeAggregator` will fall back to an in-memory counter for that specific instance. The key used for storing the count in the external store is automatically generated and is unique per aggregator instance, typically following the pattern `siddhi:count:<executionPlanName>:<elementId>`.
+If the key-value store is not configured correctly (e.g., wrong host/port, server unavailable) or if the connection pool fails to initialize, the `CountAttributeAggregator` will fall back to an in-memory counter for that specific instance. The key used for storing the count in the external store is automatically generated and is unique per aggregator instance, typically following the pattern `siddhi:count:<executionPlanName>:<elementId>`.
 
 **Connection Pool Management:**
 
-Both the Redis and Valkey client integrations use connection pooling internally for efficient resource management. These pools are configured with reasonable default settings. For most use cases, these defaults should suffice. If advanced tuning of pool parameters is required, it would typically involve modifying the respective client adapter or connection manager source code.
+The `KVStoreManager` manages a single, shared connection pool for all interactions with the key-value store, ensuring efficient resource management. This pool is configured with reasonable default settings. For most use cases, these defaults should suffice. If advanced tuning of the pool parameters is required, it would involve modifying the `PooledKVClient` source code.
 
 ## Questions 
 * Questions are welcomed & we are happy to help you integrate Siddhi to your project :)

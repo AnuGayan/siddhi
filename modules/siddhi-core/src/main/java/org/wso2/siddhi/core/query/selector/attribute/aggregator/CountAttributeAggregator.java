@@ -19,9 +19,9 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.kvstore.KeyValueStoreClient; // Changed
-import org.wso2.siddhi.core.util.kvstore.KeyValueStoreManager; // Changed
-import org.wso2.siddhi.core.util.kvstore.KeyValueStoreException; // Added
+import org.wso2.siddhi.core.util.kvstore.KeyValueStoreClient;
+import org.wso2.siddhi.core.util.kvstore.KVStoreManager; // Changed
+import org.wso2.siddhi.core.util.kvstore.KeyValueStoreException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 // import redis.clients.jedis.Jedis; // Removed
 // import redis.clients.jedis.exceptions.JedisException; // Removed
@@ -37,9 +37,9 @@ public class CountAttributeAggregator extends AttributeAggregator {
     private static final Logger log = LoggerFactory.getLogger(CountAttributeAggregator.class);
     private static Attribute.Type type = Attribute.Type.LONG;
     private long value = 0L; // Local fallback counter
-    private KeyValueStoreClient kvStoreClient; // Added
-    private String kvStoreType; // Added
-    private String kvStoreKey; // Renamed from redisKey
+    private KeyValueStoreClient kvStoreClient;
+    // private String kvStoreType; // Removed
+    private String kvStoreKey;
     private String elementId;
 
 
@@ -52,33 +52,23 @@ public class CountAttributeAggregator extends AttributeAggregator {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        this.kvStoreKey = "siddhi:count:" + executionPlanContext.getName() + ":" + elementId; // Renamed redisKey
-
-        this.kvStoreType = System.getProperty(
-                KeyValueStoreManager.KEYVALUE_STORE_TYPE_PROPERTY,
-                KeyValueStoreManager.DEFAULT_KV_STORE_TYPE
-        ).toLowerCase();
+        this.kvStoreKey = "siddhi:count:" + executionPlanContext.getName() + ":" + elementId;
 
         try {
-            this.kvStoreClient = KeyValueStoreManager.getClient();
-            // The getClient() method now calls connect() on the adapter.
-            // We can additionally check isConnected() if desired, but connect() should throw if it fails critically.
+            this.kvStoreClient = KVStoreManager.getClient();
             if (this.kvStoreClient != null && this.kvStoreClient.isConnected()) {
-                log.info("KeyValueStoreClient of type '{}' initialized and connected for aggregator with key '{}'.",
-                        kvStoreType, kvStoreKey);
+                log.info("KVStoreClient initialized and connected for aggregator with key '{}'.", kvStoreKey);
             } else {
-                // This case might occur if getClient() returns a client that fails isConnected() immediately,
-                // or if getClient() itself didn't throw but returned null (though current getClient() throws).
-                log.warn("KeyValueStoreClient obtained for type '{}', but isConnected() is false for key '{}'. Aggregator will use fallback.",
-                        kvStoreType, kvStoreKey);
+                log.warn("KVStoreClient obtained, but isConnected() is false for key '{}'. Aggregator will use fallback.",
+                        kvStoreKey);
                 this.kvStoreClient = null; // Ensure fallback
             }
         } catch (KeyValueStoreException e) {
-            log.error("Failed to initialize KeyValueStoreClient for aggregator with key '{}'. Reason: {}. Operating in fallback mode.",
-                    kvStoreKey, e.getMessage(), e);
+            log.warn("Failed to get KVStoreClient for aggregator with key '{}'. Reason: {}. Operating in fallback mode.",
+                    kvStoreKey, e.getMessage());
             this.kvStoreClient = null; // Ensure fallback
         } catch (Exception e) { // Catch any other unexpected exceptions during client init
-            log.error("Unexpected error initializing KeyValueStoreClient for aggregator with key '{}'. Operating in fallback mode.",
+            log.error("Unexpected error getting KVStoreClient for aggregator with key '{}'. Operating in fallback mode.",
                     kvStoreKey, e);
             this.kvStoreClient = null; // Ensure fallback
         }
@@ -179,16 +169,11 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public void stop() {
-        if (kvStoreClient != null) {
-            try {
-                kvStoreClient.disconnect();
-                log.info("KeyValueStoreClient disconnected for aggregator with key '{}'.", kvStoreKey);
-            } catch (KeyValueStoreException e) {
-                log.error("Error disconnecting KeyValueStoreClient for key '{}'. Error: {}", kvStoreKey, e.getMessage());
-            } finally {
-                kvStoreClient = null; // Release the client
-            }
-        }
+        // The lifecycle of the shared KVStoreClient is managed by KVStoreManager.
+        // This aggregator instance should not disconnect or shut down the shared client.
+        // The reference can be released if desired, but it's not strictly necessary.
+        this.kvStoreClient = null;
+        log.debug("Stopped aggregator for key '{}'. Released reference to shared KVStoreClient.", kvStoreKey);
     }
 
     @Override
